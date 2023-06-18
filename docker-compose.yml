@@ -2,8 +2,8 @@ version: '3.1'
 services:
   stats-server:
     build:
-      context: .
-      dockerfile: ewm-statistics/Dockerfile-statistics
+      context: ewm-statistics
+      dockerfile: Dockerfile-ewm-statistics
     container_name: ewm-statistics
     ports:
       - "9090:9090"
