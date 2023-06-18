@@ -3,7 +3,7 @@ services:
   stats-server:
     build:
       context: .
-      dockerfile: Dockerfile-statistics
+      dockerfile: ewm-statistics/Dockerfile-statistics
     container_name: ewm-statistics
     ports:
       - "9090:9090"
