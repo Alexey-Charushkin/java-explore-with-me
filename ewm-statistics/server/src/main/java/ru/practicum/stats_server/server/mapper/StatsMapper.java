@@ -22,7 +22,7 @@ class StatsMapper {
                 statsDtoToSave.getUri(),
                 statsDtoToSave.getIp(),
                 LocalDateTime.parse(statsDtoToSave.getTimestamp(), formatter),
-                0
+                null
         );
     }
 

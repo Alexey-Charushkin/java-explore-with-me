@@ -12,5 +12,4 @@ public interface StatsService {
     void save(StatsDtoToSave statsDtoToSave);
 
     List<StatsDtoToReturn> get(LocalDateTime start, LocalDateTime end, String[] iris, boolean unique, int from, int size);
-
 }
