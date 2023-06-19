@@ -1,4 +1,4 @@
-package ru.practicum.stats_server.server;
+package ru.practicum.stats_server.server.controller;
 
 
 import dto.StatsDtoToReturn;
@@ -6,7 +6,6 @@ import dto.StatsDtoToSave;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.stats_server.server.service.StatsService;
 
@@ -25,11 +24,10 @@ public class StatsController {
     private final StatsService statsService;
 
     @PostMapping("/hit")
-    public ResponseEntity<String> create(@RequestBody StatsDtoToSave statsDtoToSave) {
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Информация сохранена")
+    public void create(@RequestBody StatsDtoToSave statsDtoToSave) {
         log.info("/hit");
         statsService.save(statsDtoToSave);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("Информация сохранена");
     }
 
     @GetMapping("/stats")
