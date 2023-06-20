@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StatsController {
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final StatsService statsService;
 
     @PostMapping("/hit")
