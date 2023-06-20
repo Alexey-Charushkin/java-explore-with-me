@@ -1,4 +1,4 @@
-package ru.practicum.stats_server.server.controller;
+package ru.practicum.stats_server.server;
 
 
 import dto.StatsDtoToReturn;
