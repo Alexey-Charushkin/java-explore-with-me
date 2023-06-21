@@ -1,0 +1,4 @@
+FROM amazoncorretto:11
+WORKDIR /ewm
+COPY target/*.jar /ewm/main/main.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
