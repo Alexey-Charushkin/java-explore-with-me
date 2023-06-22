@@ -1,6 +1,6 @@
-drop table IF EXISTS statistics;
+drop table IF EXISTS users;
 
-CREATE TABLE IF NOT EXISTS statistics
+CREATE TABLE IF NOT EXISTS users
 (
     id    INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL UNIQUE,
     app  varchar(100),
