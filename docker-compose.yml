@@ -2,15 +2,15 @@ version: '3.1'
 services:
   stats-server:
     build:
-      context: .
-      dockerfile: Dockerfile-statistics
-    container_name: ewm-statistics
+      context: stat/server
+      dockerfile: Dockerfile_stat
+    container_name: stat
     ports:
       - "9090:9090"
     depends_on:
       - stats-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm-stats-server
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/ewm-stats
 
   stats-db:
     image: postgres:14-alpine
@@ -18,21 +18,28 @@ services:
     ports:
       - "6541:5432"
     environment:
-      - POSTGRES_DB=ewm-stats-server
+      - POSTGRES_DB=ewm-stats
       - POSTGRES_USER=sa
       - POSTGRES_PASSWORD=imroot
 
-#  ewm-service:
-#    build:
-#      context: ewm-service
-#      dockerfile: Dockerfile-service
-#    container_name: evm-service
-#    ports:
-#      - "8080:8080"
-#
-#  ewm-db:
-#    image: postgres:14-alpine
+  ewm-service:
+    build:
+      context: main
+      dockerfile: Dockerfile_main
+    container_name: main
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ewm-db
 
+  ewm-db:
+    image: postgres:14-alpine
+    ports:
+      - "6545:5435"
+    environment:
+     - POSTGRES_DB=ewm-main
+     - POSTGRES_USER=sa
+     - POSTGRES_PASSWORD=imroot
 
 
 

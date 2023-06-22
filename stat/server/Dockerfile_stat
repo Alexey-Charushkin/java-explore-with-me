@@ -1,0 +1,4 @@
+FROM amazoncorretto:11
+WORKDIR /ewm/stat
+COPY target/*.jar /stat/stat.jar
+ENTRYPOINT ["java","-jar","/stat/stat.jar"]

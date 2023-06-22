@@ -1,7 +1,0 @@
-FROM amazoncorretto:11
-WORKDIR /ewm
-COPY ewm-statistics-client/target/*.jar /ewm/statistics/client.jar
-COPY ewm-statistics-server/target/*.jar /ewm/statistics/server.jar
-COPY ewm-statistics-dto/target/*.jar /ewm/statistics/dto.jar
-
-ENTRYPOINT ["java","-jar","/ewm/statistics/server.jar"]
