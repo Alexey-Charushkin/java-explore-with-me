@@ -1,17 +1,11 @@
 package ru.practicum.main.event.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.main.event.dto.EventNewDto;
-import ru.practicum.main.event.model.Event;
-import ru.practicum.main.user.model.Location;
-import ru.practicum.main.user.model.User;
-
-import java.time.LocalDateTime;
 
 @UtilityClass
 public class EventMapper {
 
-//    public Event newEventDtoToEvent(User user, Location location, EventNewDto eventNewDto, Category category) {
+//    public Event newEventDtoToEvent(User user, Location location, NewEventDto eventNewDto, Category category) {
 //        return new Event(
 //                eventNewDto.getId(),
 //                eventNewDto.getTitle(),

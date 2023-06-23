@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUsersByIds(Long[] ids, Integer from, Integer size) {
+    public List<UserDto> getUsersByIds(Integer[] ids, Integer from, Integer size) {
         Pageable page = PageRequest.of(from, size);
         if (ids == null) return UserMapper.pageUserToListUserDto(userRepository.findAll(page));
         if (ids.length == 0) return Collections.emptyList();
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(Long userId) {
+    public void delete(Integer userId) {
         userRepository.deleteById(userId);
     }
 }

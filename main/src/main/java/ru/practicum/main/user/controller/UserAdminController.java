@@ -35,7 +35,7 @@ public class UserAdminController {
     }
 
     @GetMapping
-    public List<UserDto> getUsersByIds(@RequestParam(name = "ids", required = false) Long[] ids,
+    public List<UserDto> getUsersByIds(@RequestParam(name = "ids", required = false) Integer[] ids,
                                        @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                        @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get admin/users/?ids={} &from={} &size={}", ids, from, size);
@@ -44,7 +44,7 @@ public class UserAdminController {
 
     @DeleteMapping("{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@Positive @PathVariable("userId") Long userId) throws EntityNotFoundException, InvalidParameterException {
+    public void delete(@Positive @PathVariable("userId") Integer userId) throws EntityNotFoundException, InvalidParameterException {
         log.info("delete admin/users/userId");
         userService.delete(userId);
     }

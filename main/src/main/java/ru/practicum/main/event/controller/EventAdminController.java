@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
-import ru.practicum.main.event.dto.EventNewDto;
+import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.service.EventService;
 
 import javax.validation.Valid;
@@ -23,7 +23,7 @@ public class EventAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto save(@Valid @RequestBody EventNewDto newEventDto) {
+    public EventFullDto save(@Valid @RequestBody NewEventDto newEventDto) {
         log.info("post admin/users");
       //  return eventService.save();
         return null;

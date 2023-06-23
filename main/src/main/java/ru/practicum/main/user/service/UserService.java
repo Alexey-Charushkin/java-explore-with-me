@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserService {
     UserDto save(User user);
 
-    List<UserDto> getUsersByIds(Long[] ids, Integer from, Integer size);
+    List<UserDto> getUsersByIds(Integer[] ids, Integer from, Integer size);
 
-    void delete(Long userId);
+    void delete(Integer userId);
 }

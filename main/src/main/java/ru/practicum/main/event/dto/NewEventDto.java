@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventNewDto {
+public class NewEventDto {
     @NotBlank
     @Size(min = 20, max = 2000)
     private String annotation;  // example: Сплав на байдарках похож на полет. Краткое описание события
