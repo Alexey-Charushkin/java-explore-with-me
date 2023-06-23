@@ -22,4 +22,9 @@ public class User {
     private Integer id;
     @Column(nullable = false)
     private String name;
+
+    public User(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
 }
