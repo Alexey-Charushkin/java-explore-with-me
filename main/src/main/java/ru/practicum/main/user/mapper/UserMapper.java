@@ -1,18 +1,22 @@
 package ru.practicum.main.user.mapper;
 
 import lombok.experimental.UtilityClass;
-import ru.practicum.main.user.dto.NewUserRequest;
+import org.springframework.data.domain.Page;
+import ru.practicum.main.user.dto.NewUserDto;
 import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.model.User;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public
 class UserMapper {
 
-    public User NewUserRequestToUser(NewUserRequest newUserRequest) {
+    public User NewUserRequestToUser(NewUserDto newUserDto) {
         return new User(
-                newUserRequest.getEmail(),
-                newUserRequest.getName()
+                newUserDto.getEmail(),
+                newUserDto.getName()
         );
     }
 
@@ -22,5 +26,17 @@ class UserMapper {
                 user.getId(),
                 user.getName()
         );
+    }
+
+    public List<UserDto> ListUserToListUserDto(List<User> userList) {
+        return userList.stream()
+                .map(UserMapper::UserToUserDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDto> PageUserToListUserDto(Page<User> userPage) {
+        return userPage.stream()
+                .map(UserMapper::UserToUserDto)
+                .collect(Collectors.toList());
     }
 }

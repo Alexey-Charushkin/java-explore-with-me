@@ -4,11 +4,16 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.main.user.dao.UserRepository;
 import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.mapper.UserMapper;
 import ru.practicum.main.user.model.User;
+
+import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,9 +23,23 @@ import ru.practicum.main.user.model.User;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
     @Override
     public UserDto save(User user) {
         userRepository.save(user);
         return UserMapper.UserToUserDto(user);
+    }
+
+    @Override
+    public List<UserDto> getUsersByIds(Long[] ids, Integer from, Integer size) {
+        Pageable page = PageRequest.of(from, size);
+        if (ids == null) return UserMapper.PageUserToListUserDto(userRepository.findAll(page));
+        if (ids.length == 0) return Collections.emptyList();
+        return UserMapper.ListUserToListUserDto(userRepository.findByIdIn(ids, page));
+    }
+
+    @Override
+    public void delete(Long userId) {
+        userRepository.deleteById(userId);
     }
 }
