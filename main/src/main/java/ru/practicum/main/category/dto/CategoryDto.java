@@ -15,7 +15,5 @@ import javax.validation.constraints.Size;
 public
 class CategoryDto {
     private Integer id;
-    @NotBlank
-    @Size(min = 1, max = 50)
-    private String name; // maxLength: 50 minLength: 1 example: Концерты Название категории
+    private String name;
 }
