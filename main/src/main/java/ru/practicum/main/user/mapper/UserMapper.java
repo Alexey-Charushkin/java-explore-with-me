@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
 public
 class UserMapper {
 
-    public User NewUserRequestToUser(NewUserDto newUserDto) {
+    public User newUserDtoToUser(NewUserDto newUserDto) {
         return new User(
                 newUserDto.getEmail(),
                 newUserDto.getName()
         );
     }
 
-    public UserDto UserToUserDto(User user) {
+    public UserDto userToUserDto(User user) {
         return new UserDto(
                 user.getEmail(),
                 user.getId(),
@@ -28,15 +28,15 @@ class UserMapper {
         );
     }
 
-    public List<UserDto> ListUserToListUserDto(List<User> userList) {
+    public List<UserDto> listUserToListUserDto(List<User> userList) {
         return userList.stream()
-                .map(UserMapper::UserToUserDto)
+                .map(UserMapper::userToUserDto)
                 .collect(Collectors.toList());
     }
 
-    public List<UserDto> PageUserToListUserDto(Page<User> userPage) {
+    public List<UserDto> pageUserToListUserDto(Page<User> userPage) {
         return userPage.stream()
-                .map(UserMapper::UserToUserDto)
+                .map(UserMapper::userToUserDto)
                 .collect(Collectors.toList());
     }
 }

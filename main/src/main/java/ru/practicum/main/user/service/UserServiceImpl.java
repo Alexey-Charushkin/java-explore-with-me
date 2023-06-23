@@ -27,15 +27,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto save(User user) {
         userRepository.save(user);
-        return UserMapper.UserToUserDto(user);
+        return UserMapper.userToUserDto(user);
     }
 
     @Override
     public List<UserDto> getUsersByIds(Long[] ids, Integer from, Integer size) {
         Pageable page = PageRequest.of(from, size);
-        if (ids == null) return UserMapper.PageUserToListUserDto(userRepository.findAll(page));
+        if (ids == null) return UserMapper.pageUserToListUserDto(userRepository.findAll(page));
         if (ids.length == 0) return Collections.emptyList();
-        return UserMapper.ListUserToListUserDto(userRepository.findByIdIn(ids, page));
+        return UserMapper.listUserToListUserDto(userRepository.findByIdIn(ids, page));
     }
 
     @Override

@@ -31,7 +31,7 @@ public class UserAdminController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto save(@Valid @RequestBody NewUserDto newUserDto) {
         log.info("post admin/users");
-        return userService.save(UserMapper.NewUserRequestToUser(newUserDto));
+        return userService.save(UserMapper.newUserDtoToUser(newUserDto));
     }
 
     @GetMapping
