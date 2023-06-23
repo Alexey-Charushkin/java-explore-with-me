@@ -7,8 +7,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.user.dto.NewUserRequest;
+import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.mapper.UserMapper;
 import ru.practicum.main.user.service.UserService;
+
+import javax.validation.Valid;
 
 
 @Log4j2
@@ -22,9 +25,9 @@ public class UserAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void save(@RequestBody NewUserRequest newUserRequest) {
+    public UserDto save(@Valid @RequestBody NewUserRequest newUserRequest) {
         log.info("post admin/users");
-        userService.save(UserMapper.NewUserRequestToUser(newUserRequest));
+        return userService.save(UserMapper.NewUserRequestToUser(newUserRequest));
     }
 
 

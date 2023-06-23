@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import ru.practicum.main.user.dao.UserRepository;
+import ru.practicum.main.user.dto.UserDto;
+import ru.practicum.main.user.mapper.UserMapper;
 import ru.practicum.main.user.model.User;
 
 @Getter
@@ -17,7 +19,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     @Override
-    public void save(User user) {
+    public UserDto save(User user) {
         userRepository.save(user);
+        return UserMapper.UserToUserDto(user);
     }
 }
