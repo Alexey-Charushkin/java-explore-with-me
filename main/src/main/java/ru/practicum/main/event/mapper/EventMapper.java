@@ -1,16 +1,20 @@
 package ru.practicum.main.event.mapper;
 
 import lombok.experimental.UtilityClass;
+import org.springframework.data.domain.Page;
+import ru.practicum.main.category.dto.CategoryDto;
+import ru.practicum.main.category.mapper.CategoryMapper;
+import ru.practicum.main.category.model.Category;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.user.dto.mapper.CategoryMapper;
 import ru.practicum.main.user.mapper.UserMapper;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class EventMapper {
@@ -63,6 +67,12 @@ public class EventMapper {
                 event.getTitle(),
                 event.getViews()
         );
+    }
+
+    public List<EventShortDto> toEventDtoList(List<Event> eventList) {
+        return eventList.stream()
+                .map(EventMapper::eventToEventShortDto)
+                .collect(Collectors.toList());
     }
 }
 

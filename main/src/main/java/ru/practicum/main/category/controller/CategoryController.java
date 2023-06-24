@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.service.CategoryService;
 import ru.practicum.main.exception.BadRequestException;
-import ru.practicum.main.user.dto.mapper.CategoryMapper;
+import ru.practicum.main.category.mapper.CategoryMapper;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.Positive;

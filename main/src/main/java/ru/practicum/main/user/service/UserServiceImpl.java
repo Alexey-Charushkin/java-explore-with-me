@@ -10,13 +10,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.user.dao.UserRepository;
 import ru.practicum.main.user.dto.UserDto;
-import ru.practicum.main.user.dto.UserShortDto;
 import ru.practicum.main.user.mapper.UserMapper;
 import ru.practicum.main.user.model.User;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Setter

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.main.category.dao.CategoryRepository;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
-import ru.practicum.main.user.dto.mapper.CategoryMapper;
+import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.exception.NotFoundException;
 
