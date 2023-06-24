@@ -18,14 +18,14 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @NoArgsConstructor
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Table(name = "events", schema = "public")
 public class Event {
     @Column(name = "annotation", nullable = false)
     private String annotation;  // Краткое описание
 
     @ManyToOne
-    @Column(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Column(name = "confirmed_requests")
@@ -45,28 +45,25 @@ public class Event {
     private Integer id;
 
     @ManyToOne
-    @Column(name = "initiator_id", nullable = false)
+    @JoinColumn(name = "initiator_id", nullable = false)
     private User initiator;
 
     @OneToOne
-    @Column(name = "location_id", nullable = false)
+    @JoinColumn(name = "location_id", nullable = false)
     private Location location;
 
     @Column(name = "paid")
     private boolean paid; // Нужно ли оплачивать участие
 
     @Column(name = "participant_limit")
-    @ColumnDefault("0")
     private Integer participantLimit; // example: 10 default: 0. Ограничение на количество участников. Значение 0 - означает отсутствие ограничения
 
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
     @Column(name = "request_moderation")
-    @ColumnDefault("true")
     private boolean requestModeration; // example: true default: true Нужна ли пре-модерация заявок на участие
 
     @Enumerated(EnumType.STRING)
-    @ColumnDefault("PENDING_PUBLICATION")
     @Column(name = "state")
     private EventState state; // example: PUBLISHED   Список состояний жизненного цикла события  Enum:
     @Column(name = "title", nullable = false)

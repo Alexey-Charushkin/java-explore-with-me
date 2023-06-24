@@ -23,7 +23,7 @@ class EventPrivateController {
 
     private final EventService eventService;
 
-    @PostMapping("{itemId}/comment")
+    @PostMapping("{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto save(@Positive @PathVariable Integer userId,
                              @Valid @RequestBody NewEventDto newEventDto) {

@@ -6,6 +6,8 @@ import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.user.dto.UserShortDto;
 import ru.practicum.main.locations.model.Location;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,3 +30,8 @@ public class EventFullDto {
     private String title;
     private Integer views;
 }
+
+
+
+
+
