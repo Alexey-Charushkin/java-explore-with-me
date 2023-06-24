@@ -4,6 +4,7 @@ import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Page;
 import ru.practicum.main.user.dto.NewUserDto;
 import ru.practicum.main.user.dto.UserDto;
+import ru.practicum.main.user.dto.UserShortDto;
 import ru.practicum.main.user.model.User;
 
 import java.util.List;
@@ -23,6 +24,13 @@ class UserMapper {
     public UserDto userToUserDto(User user) {
         return new UserDto(
                 user.getEmail(),
+                user.getId(),
+                user.getName()
+        );
+    }
+
+    public UserShortDto userToUserShortDto(User user) {
+        return new UserShortDto(
                 user.getId(),
                 user.getName()
         );

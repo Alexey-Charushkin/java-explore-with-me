@@ -21,13 +21,7 @@ public class EventAdminController {
 
     private final EventService eventService;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto save(@Valid @RequestBody NewEventDto newEventDto) {
-        log.info("post admin/users");
-      //  return eventService.save();
-        return null;
-    }
+
 
 //    @GetMapping
 //    public List<UserDto> getUsersByIds(@RequestParam(name = "ids", required = false) Long[] ids,

@@ -35,23 +35,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto patch(Integer catId, NewCategoryDto newCategoryDto) {
-        Optional<Category> category = categoryRepository.findById(catId);
-        if (category.isPresent()) {
-            category.get().setName(newCategoryDto.getName());
-            return CategoryMapper.categoryToCategoryDto(category.get());
-        } else {
-            throw new BadRequestException("Category with id" + catId + "was not found");
-        }
+        Category category = getById(catId);
+            category.setName(newCategoryDto.getName());
+            return CategoryMapper.categoryToCategoryDto(category);
+
     }
 
-    @Override
-    public CategoryDto getById(Integer catId) {
-        Optional<Category> category = categoryRepository.findById(catId);
-        if (category.isPresent()) {
-            return CategoryMapper.categoryToCategoryDto(category.get());
-        } else {
-            throw new NotFoundException("Category with id" + catId + "was not found");
-        }
+    public CategoryDto findById(Integer catId) {
+        return CategoryMapper.categoryToCategoryDto(getById(catId));
     }
 
     @Override
@@ -63,11 +54,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteById(Integer catId) {
         //  Обратите внимание: с категорией не должно быть связано ни одного события.
-        Optional<Category> category = categoryRepository.findById(catId);
-        if (category.isPresent()) {
-            categoryRepository.deleteById(catId);
-        } else {
-            throw new BadRequestException("Category with id" + catId + "was not found");
-        }
+        categoryRepository.delete(getById(catId));
+    }
+
+    private Category getById(Integer catId) {
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Category with id " + catId + " was not found"));
+        return category;
     }
 }

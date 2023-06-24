@@ -1,10 +1,7 @@
 package ru.practicum.main.event.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import ru.practicum.main.user.model.Location;
+import lombok.*;
+import ru.practicum.main.locations.model.Location;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

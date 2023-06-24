@@ -7,13 +7,16 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.user.dao.UserRepository;
 import ru.practicum.main.user.dto.UserDto;
+import ru.practicum.main.user.dto.UserShortDto;
 import ru.practicum.main.user.mapper.UserMapper;
 import ru.practicum.main.user.model.User;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -28,6 +31,13 @@ public class UserServiceImpl implements UserService {
     public UserDto save(User user) {
         userRepository.save(user);
         return UserMapper.userToUserDto(user);
+    }
+
+    @Override
+    public UserShortDto findById(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+        return UserMapper.userToUserShortDto(user);
     }
 
     @Override

@@ -26,7 +26,7 @@ class CategoryController {
     @GetMapping("{catId}")
     public CategoryDto getById(@Positive @PathVariable("catId") Integer catId) throws EntityNotFoundException, InvalidParameterException {
         log.info("Get categories/catId");
-        return categoryService.getById(catId);
+        return categoryService.findById(catId);
     }
 
     @GetMapping

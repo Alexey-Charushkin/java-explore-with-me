@@ -11,7 +11,7 @@ public interface CategoryService {
 
     CategoryDto patch(Integer catId, NewCategoryDto newCategoryDto);
 
-    CategoryDto getById(Integer catId);
+    CategoryDto findById(Integer catId);
 
     List<CategoryDto> getCategories(Integer from, Integer size);
 
