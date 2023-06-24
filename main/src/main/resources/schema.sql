@@ -9,5 +9,5 @@ CREATE TABLE IF NOT EXISTS users(
 
 CREATE TABLE IF NOT EXISTS categories(
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL UNIQUE,
-    name   varchar(50)
+    name   varchar(50) UNIQUE
     );

@@ -9,18 +9,11 @@ import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.service.CategoryService;
-import ru.practicum.main.user.dto.NewUserDto;
-import ru.practicum.main.user.dto.UserDto;
-import ru.practicum.main.user.mapper.UserMapper;
-import ru.practicum.main.user.service.UserService;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.security.InvalidParameterException;
-import java.util.List;
-
 
 @Log4j2
 @RestController
@@ -34,23 +27,23 @@ public class CategoryAdminController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CategoryDto save(@Valid @RequestBody NewCategoryDto newCategoryDto) {
-        log.info("post admin/categories");
+        log.info("Post admin/categories");
         return categoryService.save(CategoryMapper.newCategoryDtoToCategory(newCategoryDto));
     }
-//
-//    @GetMapping
-//    public List<UserDto> getUsersByIds(@RequestParam(name = "ids", required = false) Long[] ids,
-//                                       @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
-//                                       @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
-//        log.info("Get admin/users/?ids={} &from={} &size={}", ids, from, size);
-//        return userService.getUsersByIds(ids, from, size);
-//    }
-//
-//    @DeleteMapping("{userId}")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void delete(@Positive @PathVariable("userId") Long userId) throws EntityNotFoundException, InvalidParameterException {
-//        log.info("delete admin/users/userId");
-//        userService.delete(userId);
-//    }
+
+    @PatchMapping("{catId}")
+    public CategoryDto patch(@Positive @PathVariable("catId") Integer catId,
+                             @Valid @RequestBody NewCategoryDto newCategoryDto
+    ) throws EntityNotFoundException, InvalidParameterException {
+        log.info("Patch admin/categories/catId");
+        return categoryService.patch(catId, newCategoryDto);
+    }
+
+    @DeleteMapping("{catId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@Positive @PathVariable("catId") Integer catId) throws EntityNotFoundException, InvalidParameterException {
+        log.info("delete admin/categories/catId");
+        categoryService.deleteById(catId);
+    }
 
 }
