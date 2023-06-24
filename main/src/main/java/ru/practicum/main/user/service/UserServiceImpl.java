@@ -34,10 +34,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserShortDto findById(Integer userId) {
+    public User findById(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
-        return UserMapper.userToUserShortDto(user);
+        return user;
     }
 
     @Override

@@ -4,11 +4,15 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
-import ru.practicum.main.event.dto.State;
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.user.dto.mapper.CategoryMapper;
+import ru.practicum.main.user.mapper.UserMapper;
+
+import java.time.format.DateTimeFormatter;
 
 @UtilityClass
 public class EventMapper {
+
 
     //    public Event newEventDtoToEvent(User user, Location location, NewEventDto eventNewDto, Category category) {
 //        return new Event(
@@ -28,7 +32,9 @@ public class EventMapper {
 //                eventNewDto.getParticipantLimit() == null ? 0 : eventNewDto.getParticipantLimit(),
 //                eventNewDto.getRequestModeration() == null || eventNewDto.getRequestModeration()
 //                );
-//    }
+//    }(в формате "yyyy-MM-dd HH:mm:ss")
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public Event newEventDtoToEvent(NewEventDto newEventDto) {
         return new Event(
@@ -39,7 +45,6 @@ public class EventMapper {
                 newEventDto.getPaid(),
                 newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit(),
                 newEventDto.getRequestModeration(),
-                State.valueOf("PENDING"),
                 newEventDto.getTitle()
         );
     }
@@ -47,19 +52,19 @@ public class EventMapper {
     public EventFullDto eventToEventFullDto(Event event) {
         return new EventFullDto(
                 event.getAnnotation(),
-                event.getCategory(),
+                CategoryMapper.categoryToCategoryDto(event.getCategory()),
                 event.getConfirmedRequests(),
-                event.getCreatedOn(),
+                event.getCreatedOn().toString(),
                 event.getDescription(),
-                event.getEventDate(),
+                event.getEventDate().toString(),
                 event.getId(),
-                event.getInitiator(),
+                UserMapper.userToUserShortDto(event.getInitiator()),
                 event.getLocation(),
                 event.isPaid(),
                 event.getParticipantLimit(),
-                event.getPublishedOn(),
+                event.getPublishedOn().toString(),
                 event.isRequestModeration(),
-                event.getState(),
+                event.getState().toString(),
                 event.getTitle(),
                 event.getViews()
         );
@@ -68,11 +73,11 @@ public class EventMapper {
     public EventShortDto eventToEventShortDto(Event event) {
         return new EventShortDto(
                 event.getAnnotation(),
-                event.getCategory(),
+                CategoryMapper.categoryToCategoryDto(event.getCategory()),
                 event.getConfirmedRequests(),
-                event.getEventDate(),
+                event.getEventDate().toString(),
                 event.getId(),
-                event.getInitiator(),
+                UserMapper.userToUserShortDto(event.getInitiator()),
                 event.isPaid(),
                 event.getTitle(),
                 event.getViews()

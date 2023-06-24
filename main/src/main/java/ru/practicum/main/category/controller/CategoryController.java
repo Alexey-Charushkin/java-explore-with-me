@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.service.CategoryService;
 import ru.practicum.main.exception.BadRequestException;
+import ru.practicum.main.user.dto.mapper.CategoryMapper;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.constraints.Positive;
@@ -26,7 +27,7 @@ class CategoryController {
     @GetMapping("{catId}")
     public CategoryDto getById(@Positive @PathVariable("catId") Integer catId) throws EntityNotFoundException, InvalidParameterException {
         log.info("Get categories/catId");
-        return categoryService.findById(catId);
+        return CategoryMapper.categoryToCategoryDto(categoryService.findById(catId));
     }
 
     @GetMapping

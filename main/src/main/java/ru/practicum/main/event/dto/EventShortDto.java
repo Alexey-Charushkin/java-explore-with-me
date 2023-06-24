@@ -16,21 +16,13 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventShortDto {
-
-    private String annotation; // Эксклюзивность нашего шоу гарантирует привлечение максимальной зрительской аудитории
-    // Краткое описание
-
-    private CategoryDto category; // категория
-    private Integer confirmedRequests; // example: 5 Количество одобренных заявок на участие в данном событии
-
-    private LocalDateTime eventDate; // example: 2024-12-31 15:10:05
-    //  Дата и время на которые намечено событие (в формате "yyyy-MM-dd HH:mm:ss")
+    private String annotation;
+    private CategoryDto category;
+    private Integer confirmedRequests;
+    private String eventDate;
     private Integer id;
-
     private UserShortDto initiator;
-
-    private boolean paid; // example: true Нужно ли оплачивать участие
-
+    private boolean paid;
     private String title;
-    private Integer views; // Количество просмотрев события
+    private Integer views;
 }

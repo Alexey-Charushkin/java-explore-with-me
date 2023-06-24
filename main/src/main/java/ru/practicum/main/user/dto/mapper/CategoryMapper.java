@@ -1,4 +1,4 @@
-package ru.practicum.main.category.mapper;
+package ru.practicum.main.user.dto.mapper;
 
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Page;

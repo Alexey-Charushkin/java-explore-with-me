@@ -10,13 +10,11 @@ import org.springframework.stereotype.Service;
 import ru.practicum.main.category.dao.CategoryRepository;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
-import ru.practicum.main.category.mapper.CategoryMapper;
+import ru.practicum.main.user.dto.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
-import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Setter
@@ -35,14 +33,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto patch(Integer catId, NewCategoryDto newCategoryDto) {
-        Category category = getById(catId);
-            category.setName(newCategoryDto.getName());
-            return CategoryMapper.categoryToCategoryDto(category);
+        Category category = findById(catId);
+        category.setName(newCategoryDto.getName());
+        return CategoryMapper.categoryToCategoryDto(category);
 
-    }
-
-    public CategoryDto findById(Integer catId) {
-        return CategoryMapper.categoryToCategoryDto(getById(catId));
     }
 
     @Override
@@ -54,10 +48,11 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteById(Integer catId) {
         //  Обратите внимание: с категорией не должно быть связано ни одного события.
-        categoryRepository.delete(getById(catId));
+        categoryRepository.delete(findById(catId));
     }
 
-    private Category getById(Integer catId) {
+    @Override
+    public Category findById(Integer catId) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id " + catId + " was not found"));
         return category;
