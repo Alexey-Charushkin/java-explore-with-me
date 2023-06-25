@@ -12,22 +12,22 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewEventDto {
-    @NotBlank
-    @Size(min = 20, max = 2000)
+    @NotBlank(groups = {Create.class})
+    @Size(groups = {Create.class},min = 20, max = 2000)
     private String annotation;
-    @NotNull
+    @NotNull(groups = {Create.class})
     private Integer category;
-    @NotBlank
-    @Size(min = 20, max = 7000)
+    @NotBlank(groups = {Create.class})
+    @Size(groups = {Create.class}, min = 20, max = 7000)
     private String description;
-    @NotNull
+    @NotNull(groups = {Create.class})
     private String eventDate;
-    @NotNull
+    @NotNull(groups = {Create.class})
     private Location location;
     private String paid;
     private Integer participantLimit;
     private String requestModeration;
-    @NotBlank
-    @Size(min = 3, max = 120)
+    @NotBlank(groups = {Create.class})
+    @Size(groups = {Create.class}, min = 3, max = 120)
     private String title;
 }

@@ -42,6 +42,13 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleAvailableMethodConflictException(final ConflictException e) {
+        log.debug("Получен статус 409 Bad Conflict {}", e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleAvailableInternalServerErrorException(final Throwable e) {
         log.debug("Получен статус 500 Internal Server Error {}", e.getMessage(), e);

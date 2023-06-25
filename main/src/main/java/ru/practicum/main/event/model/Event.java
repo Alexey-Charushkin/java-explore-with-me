@@ -1,13 +1,8 @@
 package ru.practicum.main.event.model;
 
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Type;
-import org.springframework.stereotype.Repository;
-import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.event.dto.State;
-import ru.practicum.main.user.dto.UserShortDto;
 import ru.practicum.main.locations.model.Location;
 import ru.practicum.main.user.model.User;
 
@@ -65,7 +60,7 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
-    private EventState state; // example: PUBLISHED   Список состояний жизненного цикла события  Enum:
+    private State state; // example: PUBLISHED   Список состояний жизненного цикла события  Enum:
     @Column(name = "title", nullable = false)
     private String title;
 
@@ -81,6 +76,18 @@ public class Event {
         this.paid = Boolean.parseBoolean(paid);
         this.participantLimit = participantLimit;
         this.requestModeration = Boolean.parseBoolean(requestModeration);
+        this.title = title;
+    }
+
+    public Event(String annotation, String description, LocalDateTime parse, Location location,
+                 boolean paid, Integer participantLimit, boolean requestModeration, String title) {
+        this.annotation = annotation;
+        this.description = description;
+        this.eventDate = parse;
+        this.location = location;
+        this.paid = paid;
+        this.participantLimit = participantLimit;
+        this.requestModeration = requestModeration;
         this.title = title;
     }
 

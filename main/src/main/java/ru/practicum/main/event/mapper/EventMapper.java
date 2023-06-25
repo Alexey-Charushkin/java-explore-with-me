@@ -1,13 +1,8 @@
 package ru.practicum.main.event.mapper;
 
 import lombok.experimental.UtilityClass;
-import org.springframework.data.domain.Page;
-import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.mapper.CategoryMapper;
-import ru.practicum.main.category.model.Category;
-import ru.practicum.main.event.dto.EventFullDto;
-import ru.practicum.main.event.dto.EventShortDto;
-import ru.practicum.main.event.dto.NewEventDto;
+import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.user.mapper.UserMapper;
 
@@ -31,6 +26,32 @@ public class EventMapper {
                 newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit(),
                 newEventDto.getRequestModeration() == null ? "true" : newEventDto.getRequestModeration(),
                 newEventDto.getTitle()
+        );
+    }
+
+    public Event updateEventUserRequestToEvent(UpdateEventUserRequest updateEventUserRequest) {
+        return new Event(
+                updateEventUserRequest.getAnnotation(),
+                updateEventUserRequest.getDescription(),
+                updateEventUserRequest.getEventDate() == null ? null : LocalDateTime.parse(updateEventUserRequest.getEventDate(), formatter),
+                updateEventUserRequest.getLocation(),
+                updateEventUserRequest.isPaid(),
+                updateEventUserRequest.getParticipantLimit(),
+                updateEventUserRequest.isRequestModeration(),
+                updateEventUserRequest.getTitle()
+        );
+    }
+
+    public Event updateEventAdminRequestToEvent(UpdateEventAdminRequest updateEventAdminRequest) {
+        return new Event(
+                updateEventAdminRequest.getAnnotation(),
+                updateEventAdminRequest.getDescription(),
+                updateEventAdminRequest.getEventDate() == null ? null : LocalDateTime.parse(updateEventAdminRequest.getEventDate(), formatter),
+                updateEventAdminRequest.getLocation(),
+                updateEventAdminRequest.isPaid(),
+                updateEventAdminRequest.getParticipantLimit(),
+                updateEventAdminRequest.isRequestModeration(),
+                updateEventAdminRequest.getTitle()
         );
     }
 
@@ -69,9 +90,15 @@ public class EventMapper {
         );
     }
 
-    public List<EventShortDto> toEventDtoList(List<Event> eventList) {
+    public List<EventShortDto> toEventShortDtoList(List<Event> eventList) {
         return eventList.stream()
                 .map(EventMapper::eventToEventShortDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventFullDto> toEventFullDtoList(List<Event> eventList) {
+        return eventList.stream()
+                .map(EventMapper::eventToEventFullDto)
                 .collect(Collectors.toList());
     }
 }
