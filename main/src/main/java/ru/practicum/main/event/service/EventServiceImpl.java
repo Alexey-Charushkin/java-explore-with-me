@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.service.CategoryService;
@@ -20,8 +21,10 @@ import ru.practicum.main.locations.dao.LocationsRepository;
 import ru.practicum.main.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -108,6 +111,68 @@ public class EventServiceImpl implements EventService {
     public EventFullDto findById(Integer eventId) {
         Event event = eventRepository.findByIdAndStateIs(eventId, State.PUBLISHED);
         return EventMapper.eventToEventFullDto(event);
+    }
+
+    @Override
+    public List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, LocalDateTime start,
+                                            LocalDateTime end, boolean onlyAvailable, String sort, Integer from,
+                                            Integer size) {
+        Pageable pageable = PageRequest.of(from, size).withSort(Sort.by(sort).ascending());
+        List<Event> eventList;
+        List<Event> sortList = null;
+
+        if (start == null && end == null) {
+            eventList = eventRepository.searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfter
+                    (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+            if (eventList.size() == 0) {
+                eventList = eventRepository
+                        .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfter
+                                (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+            }
+        } else {
+            eventList = eventRepository
+                    .searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore
+                            (query, categoryIds, State.PUBLISHED, start, end, pageable);
+            if (eventList.size() == 0) {
+                eventList = eventRepository
+                        .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore
+                                (query, categoryIds, State.PUBLISHED, start, end, pageable);
+            }
+        }
+
+        if ((Boolean) pais != null) {
+            if (pais) {
+                for (Event event : eventList) {
+                    if (event.isPaid()) {
+                        sortList.add(event);
+                    }
+                }
+                eventList.clear();
+                eventList.addAll(sortList);
+            } else {
+                for (Event event : eventList) {
+                    if (!event.isPaid()) {
+                        sortList.add(event);
+                    }
+                }
+                eventList.clear();
+                eventList.addAll(sortList);
+            }
+        }
+
+        if ((Boolean) onlyAvailable != null) {
+            if (onlyAvailable) {
+                for (Event event : eventList) {
+                    if (event.getConfirmedRequests() < event.getParticipantLimit()) {
+                        sortList.add(event);
+                    }
+                }
+                eventList.clear();
+                eventList.addAll(sortList);
+            }
+        }
+
+        return EventMapper.toEventShortDtoList(eventList);
     }
 
     private boolean checkEvent(Optional<Event> optionalEvent) {
