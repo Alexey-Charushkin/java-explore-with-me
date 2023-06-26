@@ -11,13 +11,10 @@ import org.springframework.stereotype.Service;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.service.CategoryService;
 import ru.practicum.main.event.dao.EventRepository;
-import ru.practicum.main.event.dto.EventFullDto;
-import ru.practicum.main.event.dto.EventShortDto;
+import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.dto.State;
 import ru.practicum.main.exception.BadRequestException;
-import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.locations.dao.LocationsRepository;
 import ru.practicum.main.user.service.UserService;
@@ -71,50 +68,29 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchByUserIdAndEventId(Integer userId, Integer eventId, Integer catId, String stateAction,
                                                 Event event) {
         Optional<Event> optionalEvent = Optional.of(eventRepository.findByIdAndInitiatorId(userId, eventId));
-        Event oldEvent;
-
-        if (!optionalEvent.isPresent()) {
-            throw new NotFoundException("Event with userId " + userId + " and eventId " + eventId + " not found");
-        }
+        boolean check = checkEvent(optionalEvent);
+        Event eventToSave = optionalEvent.get();
         if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
             throw new BadRequestException("User is not initiator");
         }
-        if (optionalEvent.get().getState().equals(State.CANCELED)
-                || optionalEvent.get().getState().equals(State.PENDING)) {
-            oldEvent = optionalEvent.get();
-            if (oldEvent.getEventDate().isAfter(LocalDateTime.now().plusHours(2))) {
-                updateFields(stateAction, catId, oldEvent, event);
-            }
-
-        } else {
-            throw new ConflictException("Conflict");
+        if (check) {
+            updateFields(stateAction, catId, eventToSave, event);
+            eventRepository.save(eventToSave);
         }
-        eventRepository.save(oldEvent);
-        return EventMapper.eventToEventFullDto(oldEvent);
+        return EventMapper.eventToEventFullDto(eventToSave);
     }
 
     @Override
     public EventFullDto patchEvent(Integer eventId, Integer catId, String stateAction,
                                    Event event) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
-        Event oldEvent;
-
-        if (!optionalEvent.isPresent()) {
-            throw new NotFoundException("Event with Id " + eventId + " not found");
+        boolean check = checkEvent(optionalEvent);
+        Event eventToSave = optionalEvent.get();
+        if (check) {
+            updateFields(stateAction, catId, eventToSave, event);
+            eventRepository.save(eventToSave);
         }
-
-        if (optionalEvent.get().getState().equals(State.CANCELED) || optionalEvent.get().getState().equals(State.PENDING)) {
-
-            oldEvent = optionalEvent.get();
-            if (oldEvent.getEventDate().isAfter(LocalDateTime.now().plusHours(1))) {
-                updateFields(stateAction, catId, oldEvent, event);
-            }
-
-        } else {
-            throw new ConflictException("Conflict");
-        }
-        eventRepository.save(oldEvent);
-        return EventMapper.eventToEventFullDto(oldEvent);
+        return EventMapper.eventToEventFullDto(eventToSave);
     }
 
     @Override
@@ -128,62 +104,61 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDtoList(events);
     }
 
+    private boolean checkEvent(Optional<Event> optionalEvent) {
+        Event oldEvent;
+        boolean check = false;
+        if (!optionalEvent.isPresent()) {
+            throw new NotFoundException("Event with userId not found");
+        }
+        if (optionalEvent.get().getState().equals(State.CANCELED)
+                || optionalEvent.get().getState().equals(State.PENDING)) {
+            oldEvent = optionalEvent.get();
+            if (oldEvent.getEventDate().isAfter(LocalDateTime.now().plusHours(1))) {
+                check = true;
+            }
+        }
+        return check;
+    }
+
     private void updateFields(String stateAction, Integer catId, Event oldEvent, Event event) {
         Category newCategory;
-
-        if (event.getAnnotation() != null
-                && !event.getAnnotation().equals(oldEvent.getAnnotation())) {
-            oldEvent.setAnnotation(event.getAnnotation());
-        }
-
-        if (catId != null) {
-            newCategory = categoryService.findById(catId);
-            if (!newCategory.equals(oldEvent.getCategory())) {
-                oldEvent.setCategory(newCategory);
-            }
-        }
-
-        if (event.getDescription() != null && !event.getDescription().equals(oldEvent.getDescription())) {
-            oldEvent.setDescription(event.getDescription());
-        }
-
-        if (event.getEventDate() != null && event.getEventDate().isAfter(oldEvent.getEventDate())) {
-            if (event.getEventDate().isAfter(LocalDateTime.now().plusHours(2))) {
-                oldEvent.setEventDate(event.getEventDate());
-            }
-        }
-
-        if (event.getLocation() != null && event.getLocation().getId() != null &&
-                !event.getLocation().equals(oldEvent.getLocation())) {
-
-            oldEvent.setLocation(event.getLocation());
-        }
-
-//                if ((Boolean) event.isPaid() != null) {
-//                    oldEvent.get().setPaid(event.isPaid());
-//                    if(event.isPaid() && !oldEvent.get().isPaid()) oldEvent.get().setPaid(event.isPaid());
-//                    if(!event.isPaid() && oldEvent.get().isPaid()) oldEvent.get().setPaid(event.isPaid());
-//                }
-
-        if (event.getParticipantLimit() != null && !event.getParticipantLimit().equals(oldEvent.getParticipantLimit())) {
-            oldEvent.setParticipantLimit(event.getParticipantLimit());
-        }
-
-        if ((Boolean) event.isRequestModeration() != null && !event.isRequestModeration() == oldEvent.isRequestModeration()) {
-            oldEvent.setRequestModeration(event.isRequestModeration());
-        }
-
-        if (event.getParticipantLimit() != null && !event.getParticipantLimit().equals(oldEvent.getParticipantLimit())) {
-            oldEvent.setParticipantLimit(event.getParticipantLimit());
-        }
-
-        if (event.getTitle() != null && !event.getTitle().equals(oldEvent.getTitle())) {
-            oldEvent.setTitle(event.getTitle());
-        }
 
         if (stateAction != null) {
             if (stateAction.equals("CANCEL_REVIEW")) oldEvent.setState(State.CANCELED);
             if (stateAction.equals("PUBLISH_EVENT")) oldEvent.setState(State.PUBLISHED);
+        }
+
+        if (!oldEvent.getState().equals(State.CANCELED)) {
+
+            if (event.getAnnotation() != null) oldEvent.setAnnotation(event.getAnnotation());
+
+            if (catId != null) {
+                newCategory = categoryService.findById(catId);
+                oldEvent.setCategory(newCategory);
+            }
+
+            if (event.getDescription() != null) oldEvent.setDescription(event.getDescription());
+
+            if (event.getEventDate() != null && event.getEventDate().isAfter(oldEvent.getEventDate())) {
+                if (event.getEventDate().isAfter(LocalDateTime.now().plusHours(2))) {
+                    oldEvent.setEventDate(event.getEventDate());
+                }
+            }
+
+            if (event.getLocation() != null && event.getLocation().getId() != null) {
+                oldEvent.setLocation(event.getLocation());
+            }
+
+            if ((Boolean) event.isPaid() != null) oldEvent.setPaid(event.isPaid());
+
+            if (event.getParticipantLimit() != null) oldEvent.setParticipantLimit(event.getParticipantLimit());
+
+            if ((Boolean) event.isRequestModeration() != null)
+                oldEvent.setRequestModeration(event.isRequestModeration());
+
+            if (event.getParticipantLimit() != null) oldEvent.setParticipantLimit(event.getParticipantLimit());
+
+            if (event.getTitle() != null) oldEvent.setTitle(event.getTitle());
         }
     }
 }

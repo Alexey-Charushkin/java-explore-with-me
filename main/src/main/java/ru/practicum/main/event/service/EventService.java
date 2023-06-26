@@ -4,7 +4,6 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.State;
 import ru.practicum.main.event.dto.UpdateEventUserRequest;
-import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
 
 import java.time.LocalDateTime;
@@ -17,8 +16,8 @@ public interface EventService {
 
     EventFullDto findByUserIdAndEventId(Integer userId, Integer eventId);
 
-    EventFullDto patchByUserIdAndEventId(Integer userId, Integer eventId, Integer catId, String stateAction,
-                                         Event event);
+    EventFullDto  patchByUserIdAndEventId(Integer userId, Integer eventId, Integer catId, String stateAction,
+                                                            Event eventUserRequest);
 
     EventFullDto patchEvent(Integer eventId, Integer catId, String stateAction, Event event);
 
