@@ -24,4 +24,6 @@ public interface EventService {
     List<EventFullDto> findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
             Integer[] userIds, State[] states, Integer[] categoryIds, LocalDateTime start,
             LocalDateTime end, Integer from, Integer size);
+
+    EventFullDto findById(Integer eventId);
 }

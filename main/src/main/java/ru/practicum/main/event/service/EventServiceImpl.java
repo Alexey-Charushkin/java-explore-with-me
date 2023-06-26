@@ -104,6 +104,12 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDtoList(events);
     }
 
+    @Override
+    public EventFullDto findById(Integer eventId) {
+        Event event = eventRepository.findByIdAndStateIs(eventId, State.PUBLISHED);
+        return EventMapper.eventToEventFullDto(event);
+    }
+
     private boolean checkEvent(Optional<Event> optionalEvent) {
         Event oldEvent;
         boolean check = false;

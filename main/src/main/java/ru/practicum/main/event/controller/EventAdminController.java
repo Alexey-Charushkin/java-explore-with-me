@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.State;
 import ru.practicum.main.event.dto.UpdateEventAdminRequest;
-import ru.practicum.main.event.dto.UpdateEventUserRequest;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.service.EventService;
 
@@ -26,7 +25,6 @@ import java.util.List;
 public class EventAdminController {
 
     private final EventService eventService;
-
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @GetMapping
@@ -45,18 +43,10 @@ public class EventAdminController {
 
     @PatchMapping("{eventId}")
     public EventFullDto patchEvent(@Positive @PathVariable Integer eventId,
-                                         @RequestBody UpdateEventAdminRequest updateEventAdminRequestRequest) {
-        log.info("Get /users/{userId}/events/{eventId}");
+                                   @RequestBody UpdateEventAdminRequest updateEventAdminRequestRequest) {
+        log.info("Patch /users/{userId}/events/{eventId}");
         return eventService.patchEvent(eventId, updateEventAdminRequestRequest.getCategory(),
                 updateEventAdminRequestRequest.getStateAction(),
                 EventMapper.updateEventAdminRequestToEvent(updateEventAdminRequestRequest));
     }
-//
-//    @DeleteMapping("{userId}")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void delete(@Positive @PathVariable("userId") Long userId) throws EntityNotFoundException, InvalidParameterException {
-//        log.info("delete admin/users/userId");
-//        userService.delete(userId);
-//    }
-
 }
