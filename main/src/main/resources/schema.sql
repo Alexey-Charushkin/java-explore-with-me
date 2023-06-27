@@ -2,6 +2,7 @@ drop table IF EXISTS users CASCADE;
 drop table IF EXISTS categories CASCADE;
 drop table IF EXISTS locations CASCADE;
 drop table IF EXISTS events CASCADE;
+drop table IF EXISTS requests CASCADE;
 
 CREATE TABLE IF NOT EXISTS users(
     id  INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL UNIQUE,
@@ -40,3 +41,14 @@ CREATE TABLE IF NOT EXISTS events(
     CONSTRAINT fk_users FOREIGN KEY (initiator_id) REFERENCES users (id),
     CONSTRAINT fk_locations FOREIGN KEY (location_id) REFERENCES locations (id)
     );
+
+CREATE TABLE IF NOT EXISTS requests(
+     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL UNIQUE,
+     event_id INT,
+     requester_id INT,
+     status VARCHAR(8),
+     created TIMESTAMP WITHOUT TIME ZONE
+--      CONSTRAINT fk_categories FOREIGN KEY (category_id) REFERENCES categories (id),
+--      CONSTRAINT fk_users FOREIGN KEY (initiator_id) REFERENCES users (id),
+--      CONSTRAINT fk_locations FOREIGN KEY (location_id) REFERENCES locations (id)
+);

@@ -21,6 +21,7 @@ import ru.practicum.main.locations.dao.LocationsRepository;
 import ru.practicum.main.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -117,9 +118,9 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, LocalDateTime start,
                                             LocalDateTime end, boolean onlyAvailable, String sort, Integer from,
                                             Integer size) {
-        Pageable pageable = PageRequest.of(from, size).withSort(Sort.by(sort).ascending());
+        Pageable pageable = PageRequest.of(from, size);//.withSort(Sort.by(sort).ascending());
         List<Event> eventList;
-        List<Event> sortList = null;
+        List<Event> sortList = new ArrayList<>();
 
         if (start == null && end == null) {
             eventList = eventRepository.searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfter
@@ -140,7 +141,13 @@ public class EventServiceImpl implements EventService {
             }
         }
 
+
+
         if ((Boolean) pais != null) {
+
+
+
+
             if (pais) {
                 for (Event event : eventList) {
                     if (event.isPaid()) {

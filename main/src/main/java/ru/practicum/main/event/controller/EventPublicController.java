@@ -46,7 +46,7 @@ public class EventPublicController {
                                             @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                             @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get =search");
-        return eventService.searchEvents(query.toLowerCase(Locale.ROOT), categoryIds, pais, LocalDateTime.parse(start, formatter),
+        return eventService.searchEvents(query, categoryIds, pais, LocalDateTime.parse(start, formatter),
                 LocalDateTime.parse(end, formatter), onlyAvailable, sort, from, size);
     }
 }
