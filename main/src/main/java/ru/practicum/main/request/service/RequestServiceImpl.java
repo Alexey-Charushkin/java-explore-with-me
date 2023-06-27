@@ -108,6 +108,12 @@ public class RequestServiceImpl implements RequestService {
         List<EventRequest> rejectedRequests = new ArrayList<>();
         EventRequestStatusUpdateResult updateResult = new EventRequestStatusUpdateResult();
 
+        if (updateRequest.getStatus().equals(EventRequestStatus.REJECTED)) {
+            for (EventRequest eventRequest : eventRequestList) {
+                eventRequest.setStatus(EventRequestStatus.REJECTED);
+                rejectedRequests.add(eventRequest);
+            }
+        }
 
         if (event.getParticipantLimit() == 0) {
             confirmedRequests.addAll(eventRequestList);
@@ -115,6 +121,7 @@ public class RequestServiceImpl implements RequestService {
             return updateResult;
         }
         for (EventRequest eventRequest : eventRequestList) {
+
             if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
                 if (eventRequest.getStatus().equals(EventRequestStatus.PENDING)) {
                     eventRequest.setStatus(EventRequestStatus.CONFIRMED);
