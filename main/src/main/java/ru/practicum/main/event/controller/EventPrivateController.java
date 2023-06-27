@@ -49,8 +49,10 @@ class EventPrivateController {
     public EventFullDto patchByUserIdAndEventId(@Positive @PathVariable Integer userId,
                                                 @Positive @PathVariable Integer eventId,
                                                 @RequestBody UpdateEventUserRequest updateEventUserRequest) {
-        log.info("Get /users/{userId}/events/{eventId}");
+        log.info("Patch /users/{userId}/events/{eventId}");
         return eventService.patchByUserIdAndEventId(userId, eventId, updateEventUserRequest.getCategory(),
                 updateEventUserRequest.getStateAction(), EventMapper.updateEventUserRequestToEvent(updateEventUserRequest));
     }
+
+
 }

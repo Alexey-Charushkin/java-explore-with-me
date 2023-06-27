@@ -35,11 +35,17 @@ public class EventRequest {
     @Column(name = "status", nullable = false)
     private EventRequestStatus status;
 
-    public EventRequest(LocalDateTime created, Integer event, Integer id, Integer requester, String status) {
-        this.created = created;
-        this.event = event;
-        this.id = id;
-        this.requester = requester;
-        this.status = EventRequestStatus.valueOf(status);
+//    public EventRequest(LocalDateTime created, Integer event, Integer id, Integer requester, String status) {
+//        this.created = created;
+//        this.event = event;
+//        this.id = id;
+//        this.requester = requester;
+//        this.status = EventRequestStatus.valueOf(status);
+//    }
+
+    public EventRequest(LocalDateTime crated, Integer eventId, Integer userId) {
+        this.created = crated;
+        this.event = eventId;
+        this.requester = userId;
     }
 }

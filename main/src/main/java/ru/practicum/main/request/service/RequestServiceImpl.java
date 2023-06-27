@@ -5,10 +5,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import ru.practicum.main.event.dao.EventRepository;
+import ru.practicum.main.event.dto.State;
+import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.service.EventService;
+import ru.practicum.main.exception.ConflictException;
+import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.request.dao.RequestRepository;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.mapper.RequestMapper;
 import ru.practicum.main.request.model.EventRequest;
+import ru.practicum.main.request.model.EventRequestStatus;
+import ru.practicum.main.user.dao.UserRepository;
+import ru.practicum.main.user.model.User;
+import ru.practicum.main.user.service.UserService;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,9 +31,64 @@ import ru.practicum.main.request.model.EventRequest;
 public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
+    private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+
 
     @Override
-    public ParticipationRequestDto save(EventRequest eventRequest) {
+    public ParticipationRequestDto save(Integer userId, Integer eventId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found."));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found"));
+        EventRequestStatus status = EventRequestStatus.PENDING;
+
+        EventRequest oldEventRequest = requestRepository.findByRequesterAndEvent(userId, eventId);
+
+        if (oldEventRequest != null) {
+            throw new ConflictException("This request found");
+        }
+        if (event.getState().equals(State.PENDING) || event.getState().equals(State.CANCELED)) {
+            throw new ConflictException("Event is not published");
+        }
+        if (event.getInitiator().getId() == userId) {
+            throw new ConflictException("Initiator of event dont add event request");
+        }
+        if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
+            throw new ConflictException("Participant limit is full");
+        }
+//        if (event.isRequestModeration() == false) {
+//            status = EventRequestStatus.CONFIRMED;
+//        }
+
+        EventRequest eventRequest = new EventRequest(
+                LocalDateTime.now(),
+                event.getId(),
+                user.getId()
+        );
+        eventRequest.setStatus(status);
+
         return RequestMapper.toParticipationRequestDto(requestRepository.save(eventRequest));
     }
+
+    @Override
+    public List <ParticipationRequestDto> findById(Integer userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found."));
+        return RequestMapper.toParticipationRequestDtoList(requestRepository.findByRequester(userId));
+    }
+
+    @Override
+    public ParticipationRequestDto cancelEventRequest(Integer userId, Integer requestId) {
+        EventRequest eventRequest = requestRepository.findByIdAndRequester(requestId, userId);
+        if (eventRequest == null) {
+            throw new NotFoundException("EventRequest not found");
+        }
+        eventRequest.setStatus(EventRequestStatus.CANCELED);
+        requestRepository.save(eventRequest);
+        return RequestMapper.toParticipationRequestDto(eventRequest);
+    }
+
 }
+
+
