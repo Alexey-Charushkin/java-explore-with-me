@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,8 +15,8 @@ import ru.practicum.main.request.dto.ParticipationRequestDto;
 public class EventRequestStatusUpdateResult {
    // description: Результат подтверждения/отклонения заявок на участие в событии
 
-    private ParticipationRequestDto confirmedRequests; // Заявка на участие в событии
+    private List<ParticipationRequestDto> confirmedRequests; // Заявка на участие в событии
 
-    private ParticipationRequestDto rejectedRequests;
+    private List<ParticipationRequestDto> rejectedRequests;
 
 }

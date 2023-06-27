@@ -56,7 +56,7 @@ class EventPrivateController {
                                                 @Positive @PathVariable Integer eventId,
                                                 @RequestBody UpdateEventUserRequest updateEventUserRequest) {
         log.info("Patch /users/{userId}/events/{eventId}");
-        return eventService.patchByUserIdAndEventId(userId, eventId, updateEventUserRequest.getCategory(),
+        return eventService.patchByUserIdAndEventId(userId, eventId,
                 updateEventUserRequest.getStateAction(), EventMapper.updateEventUserRequestToEvent(updateEventUserRequest));
     }
 

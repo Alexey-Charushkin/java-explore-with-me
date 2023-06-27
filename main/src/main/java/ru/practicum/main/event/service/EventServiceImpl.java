@@ -61,7 +61,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto findByUserIdAndEventId(Integer userId, Integer eventId) {
-        Optional<Event> event = Optional.of(eventRepository.findByIdAndInitiatorId(userId, eventId));
+        Optional<Event> event = Optional.of(eventRepository.findByIdAndInitiatorId(eventId, userId));
         if (!event.isPresent()) {
             throw new NotFoundException("Event with userId " + userId + " and eventId " + eventId + " not found");
         }
@@ -69,29 +69,29 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto patchByUserIdAndEventId(Integer userId, Integer eventId, Integer catId, String stateAction,
+    public EventFullDto patchByUserIdAndEventId(Integer userId, Integer eventId, String stateAction,
                                                 Event event) {
-        Optional<Event> optionalEvent = Optional.of(eventRepository.findByIdAndInitiatorId(userId, eventId));
+        Optional<Event> optionalEvent = Optional.of(eventRepository.findByIdAndInitiatorId(eventId, userId));
         boolean check = checkEvent(optionalEvent);
         Event eventToSave = optionalEvent.get();
         if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
             throw new BadRequestException("User is not initiator");
         }
         if (check) {
-            updateFields(stateAction, catId, eventToSave, event);
+            updateFields(stateAction, eventToSave, event);
             eventRepository.save(eventToSave);
         }
         return EventMapper.eventToEventFullDto(eventToSave);
     }
 
     @Override
-    public EventFullDto patchEvent(Integer eventId, Integer catId, String stateAction,
+    public EventFullDto patchEvent(Integer eventId, String stateAction,
                                    Event event) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         boolean check = checkEvent(optionalEvent);
         Event eventToSave = optionalEvent.get();
         if (check) {
-            updateFields(stateAction, catId, eventToSave, event);
+            updateFields(stateAction, eventToSave, event);
             eventRepository.save(eventToSave);
         }
         return EventMapper.eventToEventFullDto(eventToSave);
@@ -198,7 +198,7 @@ public class EventServiceImpl implements EventService {
         return check;
     }
 
-    private void updateFields(String stateAction, Integer catId, Event oldEvent, Event event) {
+    private void updateFields(String stateAction, Event oldEvent, Event event) {
         Category newCategory;
 
         if (stateAction != null) {
@@ -210,8 +210,8 @@ public class EventServiceImpl implements EventService {
 
             if (event.getAnnotation() != null) oldEvent.setAnnotation(event.getAnnotation());
 
-            if (catId != null) {
-                newCategory = categoryService.findById(catId);
+            if (event.getCategory() != null) {
+                newCategory = categoryService.findById(oldEvent.getCategory().getId());
                 oldEvent.setCategory(newCategory);
             }
 

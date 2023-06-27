@@ -23,6 +23,7 @@ import ru.practicum.main.user.model.User;
 import ru.practicum.main.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -74,7 +75,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List <ParticipationRequestDto> findById(Integer userId) {
+    public List<ParticipationRequestDto> findById(Integer userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found."));
         return RequestMapper.toParticipationRequestDtoList(requestRepository.findByRequester(userId));
@@ -98,9 +99,42 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public EventRequestStatusUpdateResult patchRequestsByUserIdAndEventId(Integer userId, Integer eventId, EventRequestStatusUpdateRequest updateRequest) {
-        return null;
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found."));
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Event not found"));
+        List<EventRequest> eventRequestList = requestRepository.findByIdIn((updateRequest.getRequestIds()));
+        List<EventRequest> confirmedRequests = new ArrayList<>();
+        List<EventRequest> rejectedRequests = new ArrayList<>();
+        EventRequestStatusUpdateResult updateResult = new EventRequestStatusUpdateResult();
+
+
+        if (event.getParticipantLimit() == 0) {
+            confirmedRequests.addAll(eventRequestList);
+            updateResult.setConfirmedRequests(RequestMapper.toParticipationRequestDtoList(confirmedRequests));
+            return updateResult;
+        }
+        for (EventRequest eventRequest : eventRequestList) {
+            if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
+                if (eventRequest.getStatus().equals(EventRequestStatus.PENDING)) {
+                    eventRequest.setStatus(EventRequestStatus.CONFIRMED);
+                    confirmedRequests.add(eventRequest);
+                    event.setParticipantLimit(event.getParticipantLimit() + 1);
+                }
+            } else {
+                eventRequest.setStatus(EventRequestStatus.REJECTED);
+                rejectedRequests.add(eventRequest);
+            }
+        }
+        updateResult.setConfirmedRequests(RequestMapper.toParticipationRequestDtoList(confirmedRequests));
+        updateResult.setRejectedRequests(RequestMapper.toParticipationRequestDtoList(rejectedRequests));
+
+        return updateResult;
     }
 
+//    нельзя подтвердить заявку, если уже достигнут лимит по заявкам на данное событие (Ожидается код ошибки 409)
+//    статус можно изменить только у заявок, находящихся в состоянии ожидания (Ожидается код ошибки 409)
+//    если при подтверждении данной заявки, лимит заявок для события исчерпан, то все неподтверждённые заявки необходимо отклонить
 }
 
 

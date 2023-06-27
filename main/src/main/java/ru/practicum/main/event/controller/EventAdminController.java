@@ -45,7 +45,7 @@ public class EventAdminController {
     public EventFullDto patchEvent(@Positive @PathVariable Integer eventId,
                                    @RequestBody UpdateEventAdminRequest updateEventAdminRequestRequest) {
         log.info("Patch /users/{userId}/events/{eventId}");
-        return eventService.patchEvent(eventId, updateEventAdminRequestRequest.getCategory(),
+        return eventService.patchEvent(eventId,
                 updateEventAdminRequestRequest.getStateAction(),
                 EventMapper.updateEventAdminRequestToEvent(updateEventAdminRequestRequest));
     }

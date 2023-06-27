@@ -16,10 +16,10 @@ public interface EventService {
 
     EventFullDto findByUserIdAndEventId(Integer userId, Integer eventId);
 
-    EventFullDto  patchByUserIdAndEventId(Integer userId, Integer eventId, Integer catId, String stateAction,
+    EventFullDto  patchByUserIdAndEventId(Integer userId, Integer eventId, String stateAction,
                                                             Event eventUserRequest);
 
-    EventFullDto patchEvent(Integer eventId, Integer catId, String stateAction, Event event);
+    EventFullDto patchEvent(Integer eventId, String stateAction, Event event);
 
     List<EventFullDto> findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
             Integer[] userIds, State[] states, Integer[] categoryIds, LocalDateTime start,
