@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.service.EventService;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
+import ru.practicum.main.request.dto.ParticipationRequestDto;
+import ru.practicum.main.request.service.RequestService;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -21,6 +25,8 @@ import java.util.List;
 class EventPrivateController {
 
     private final EventService eventService;
+
+    private final RequestService requestService;
 
     @PostMapping("{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
@@ -52,6 +58,22 @@ class EventPrivateController {
         log.info("Patch /users/{userId}/events/{eventId}");
         return eventService.patchByUserIdAndEventId(userId, eventId, updateEventUserRequest.getCategory(),
                 updateEventUserRequest.getStateAction(), EventMapper.updateEventUserRequestToEvent(updateEventUserRequest));
+    }
+
+    @GetMapping("{userId}/events/{eventId}/requests")
+    public List<ParticipationRequestDto> findByUserIdAndEventId(@Positive @PathVariable Integer userId,
+                                                                @Positive @PathVariable Integer eventId) {
+        log.info("Get user/{userId}/events/{eventId}/requests");
+        return requestService.findRequestsByUserIdAndEventId(userId, eventId);
+    }
+
+    @PatchMapping("{userId}/events/{eventId}/requests")
+    public EventRequestStatusUpdateResult patchByUserIdAndEventId(@Positive @PathVariable Integer userId,
+                                                                  @Positive @PathVariable Integer eventId,
+                                                                  @Validated @RequestBody EventRequestStatusUpdateRequest
+                                                                         updateRequest) {
+        log.info("Patch user/{userId}/events/{eventId}/requests");
+        return requestService.patchRequestsByUserIdAndEventId(userId, eventId, updateRequest);
     }
 
 

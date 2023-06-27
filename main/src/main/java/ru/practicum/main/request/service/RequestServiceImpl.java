@@ -12,6 +12,8 @@ import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.request.dao.RequestRepository;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.mapper.RequestMapper;
 import ru.practicum.main.request.model.EventRequest;
@@ -87,6 +89,16 @@ public class RequestServiceImpl implements RequestService {
         eventRequest.setStatus(EventRequestStatus.CANCELED);
         requestRepository.save(eventRequest);
         return RequestMapper.toParticipationRequestDto(eventRequest);
+    }
+
+    @Override
+    public List<ParticipationRequestDto> findRequestsByUserIdAndEventId(Integer userId, Integer eventId) {
+        return RequestMapper.toParticipationRequestDtoList(requestRepository.findAllByRequesterAndEvent(userId + 1, eventId));
+    }
+
+    @Override
+    public EventRequestStatusUpdateResult patchRequestsByUserIdAndEventId(Integer userId, Integer eventId, EventRequestStatusUpdateRequest updateRequest) {
+        return null;
     }
 
 }
