@@ -14,12 +14,10 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventAdminRequest {
-//    @NotBlank
-//    @Size(min = 20, max = 2000)
+    @Size(min = 20, max = 2000)
     private String annotation;
     private Integer category;
-//    @NotBlank
-//    @Size(min = 20, max = 7000)
+    @Size(min = 20, max = 7000)
     private String description;
     private String eventDate;
     private Location location;
@@ -27,8 +25,7 @@ public class UpdateEventAdminRequest {
     private Integer participantLimit;
     private boolean requestModeration;
     private String stateAction;
-//    @NotBlank
-//    @Size(min = 3, max = 120)
+    @Size(min = 3, max = 120)
     private String title;
     public boolean isPaid() {
         return paid;
