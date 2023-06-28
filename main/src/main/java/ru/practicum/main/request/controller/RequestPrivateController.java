@@ -9,6 +9,7 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.UpdateEventUserRequest;
 import ru.practicum.main.event.mapper.EventMapper;
+import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.mapper.RequestMapper;
 import ru.practicum.main.request.service.RequestService;

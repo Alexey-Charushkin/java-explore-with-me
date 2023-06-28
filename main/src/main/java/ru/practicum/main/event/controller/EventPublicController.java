@@ -39,10 +39,10 @@ public class EventPublicController {
     public List<EventShortDto> searchEvents(@NotBlank @RequestParam("text") String query,
                                             @RequestParam(name = "categories") Integer[] categoryIds,
                                             @RequestParam(name = "paid") boolean pais,
-                                            @RequestParam(name = "rangeStart") String start,
-                                            @RequestParam(name = "rangeEnd") String end,
-                                            @RequestParam(name = "onlyAvailable") boolean onlyAvailable,
-                                            @RequestParam(name = "sort") String sort,
+                                            @RequestParam(name = "rangeStart", required = false) String start,
+                                            @RequestParam(name = "rangeEnd", required = false) String end,
+                                            @RequestParam(name = "onlyAvailable", required = false) boolean onlyAvailable,
+                                            @RequestParam(name = "sort", required = false) String sort,
                                             @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                             @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get =search");
