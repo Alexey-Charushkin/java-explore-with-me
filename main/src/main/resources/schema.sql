@@ -47,8 +47,7 @@ CREATE TABLE IF NOT EXISTS requests(
      event_id INT,
      requester_id INT,
      status VARCHAR(8),
-     created TIMESTAMP WITHOUT TIME ZONE
---      CONSTRAINT fk_categories FOREIGN KEY (category_id) REFERENCES categories (id),
---      CONSTRAINT fk_users FOREIGN KEY (initiator_id) REFERENCES users (id),
---      CONSTRAINT fk_locations FOREIGN KEY (location_id) REFERENCES locations (id)
+     created TIMESTAMP WITHOUT TIME ZONE,
+     CONSTRAINT fk_events FOREIGN KEY (event_id) REFERENCES events (id),
+     CONSTRAINT fk_users FOREIGN KEY (requester_id) REFERENCES users (id)
 );

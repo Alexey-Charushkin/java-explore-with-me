@@ -3,7 +3,6 @@ package ru.practicum.main.request.service;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
-import ru.practicum.main.request.model.EventRequest;
 
 import java.util.List;
 

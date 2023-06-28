@@ -38,7 +38,7 @@ public class RequestPrivateController {
     @PostMapping("{userId}/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto save(@Positive @PathVariable(name = "userId") Integer userId,
-                                        @RequestParam(name = "eventId") @Positive Integer eventId) {
+                                        @RequestParam(name = "eventId") Integer eventId) {
         log.info("post {userId}/requests?eventId= ");
         return requestService.save(userId, eventId);
     }

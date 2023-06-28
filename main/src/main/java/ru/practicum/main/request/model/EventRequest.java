@@ -21,31 +21,21 @@ public class EventRequest {
 
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
-    //    @ManyToOne
-//    @JoinColumn(name = "ivent_id")
-    @Column(name = "event_id", nullable = false)
-    private Integer event;
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    //    @ManyToOne
-//    @JoinColumn(name = "requester_id")
-    @Column(name = "requester_id", nullable = false)
-    private Integer requester;
+    @ManyToOne
+    @JoinColumn(name = "requester_id")
+    private User requester;
     @Column(name = "status", nullable = false)
     private EventRequestStatus status;
 
-//    public EventRequest(LocalDateTime created, Integer event, Integer id, Integer requester, String status) {
-//        this.created = created;
-//        this.event = event;
-//        this.id = id;
-//        this.requester = requester;
-//        this.status = EventRequestStatus.valueOf(status);
-//    }
-
-    public EventRequest(LocalDateTime crated, Integer eventId, Integer userId) {
-        this.created = crated;
-        this.event = eventId;
-        this.requester = userId;
+    public EventRequest(LocalDateTime created, Event event, User user) {
+        this.created = created;
+        this.event = event;
+        this.requester = user;
     }
 }

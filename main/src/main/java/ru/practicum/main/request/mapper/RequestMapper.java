@@ -30,9 +30,9 @@ public class RequestMapper {
     public ParticipationRequestDto toParticipationRequestDto (EventRequest eventRequest) {
         return new ParticipationRequestDto(
                 eventRequest.getCreated().format(formatter),
-                eventRequest.getEvent(),
+                eventRequest.getEvent().getId(),
                 eventRequest.getId(),
-                eventRequest.getRequester(),
+                eventRequest.getRequester().getId(),
                 eventRequest.getStatus().toString()
         );
     }

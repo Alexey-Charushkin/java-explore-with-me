@@ -46,7 +46,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("Event not found"));
         EventRequestStatus status = EventRequestStatus.PENDING;
 
-        EventRequest oldEventRequest = requestRepository.findByRequesterAndEvent(userId, eventId);
+        EventRequest oldEventRequest = requestRepository.findByRequesterIdAndEventId(userId, eventId);
 
         if (oldEventRequest != null) {
             throw new ConflictException("This request found");
@@ -66,8 +66,8 @@ public class RequestServiceImpl implements RequestService {
 
         EventRequest eventRequest = new EventRequest(
                 LocalDateTime.now(),
-                event.getId(),
-                user.getId()
+                event,
+                user
         );
         eventRequest.setStatus(status);
 
@@ -78,12 +78,12 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> findById(Integer userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found."));
-        return RequestMapper.toParticipationRequestDtoList(requestRepository.findByRequester(userId));
+        return RequestMapper.toParticipationRequestDtoList(requestRepository.findByRequesterId(userId));
     }
 
     @Override
     public ParticipationRequestDto cancelEventRequest(Integer userId, Integer requestId) {
-        EventRequest eventRequest = requestRepository.findByIdAndRequester(requestId, userId);
+        EventRequest eventRequest = requestRepository.findByIdAndRequesterId(requestId, userId);
         if (eventRequest == null) {
             throw new NotFoundException("EventRequest not found");
         }
@@ -94,7 +94,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> findRequestsByUserIdAndEventId(Integer userId, Integer eventId) {
-        return RequestMapper.toParticipationRequestDtoList(requestRepository.findAllByRequesterAndEvent(userId + 1, eventId));
+        return RequestMapper.toParticipationRequestDtoList(requestRepository.findAllByRequesterIdAndEventId(userId + 1, eventId));
     }
 
     @Override
