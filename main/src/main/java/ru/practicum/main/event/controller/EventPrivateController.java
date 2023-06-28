@@ -13,13 +13,14 @@ import ru.practicum.main.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.service.RequestService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Log4j2
 @RestController
-//@Validated
+@Validated
 @RequiredArgsConstructor
 @RequestMapping("/users")
 class EventPrivateController {
@@ -31,7 +32,7 @@ class EventPrivateController {
     @PostMapping("{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto save(@Positive @PathVariable Integer userId,
-                             @RequestBody NewEventDto newEventDto) {
+                             @Valid @RequestBody NewEventDto newEventDto) {
         log.info("Post /users/{userId}/events");
         return eventService.create(userId, newEventDto.getCategory(), EventMapper.newEventDtoToEvent(newEventDto));
     }

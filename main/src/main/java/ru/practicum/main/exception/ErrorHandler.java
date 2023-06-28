@@ -15,9 +15,9 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFoundException(final NotFoundException e) {
+    public ErrorResponse handleNotFoundException(final NotFoundException e) {
         log.debug("Получен статус 404 Not found {}", e.getMessage(), e);
-        return e.getMessage();
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler

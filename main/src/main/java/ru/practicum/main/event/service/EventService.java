@@ -27,6 +27,6 @@ public interface EventService {
 
     EventFullDto findById(Integer eventId);
 
-    List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, LocalDateTime start,
-                LocalDateTime end, boolean onlyAvailable, String sort, Integer from, Integer size);
+    List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, String start,
+                String end, boolean onlyAvailable, String sort, Integer from, Integer size);
 }

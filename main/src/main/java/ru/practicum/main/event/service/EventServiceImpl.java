@@ -21,6 +21,7 @@ import ru.practicum.main.locations.dao.LocationsRepository;
 import ru.practicum.main.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,8 @@ public class EventServiceImpl implements EventService {
     private final CategoryService categoryService;
     private final EventRepository eventRepository;
     private final LocationsRepository locationsRepository;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public EventFullDto create(Integer userId, Integer catId, Event event) {
@@ -111,13 +114,18 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto findById(Integer eventId) {
         Event event = eventRepository.findByIdAndStateIs(eventId, State.PUBLISHED);
+        if (event == null) {
+            throw new NotFoundException("Event not found");
+        }
         return EventMapper.eventToEventFullDto(event);
     }
 
     @Override
-    public List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, LocalDateTime start,
-                                            LocalDateTime end, boolean onlyAvailable, String sort, Integer from,
+    public List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, String start,
+                                            String end, boolean onlyAvailable, String sort, Integer from,
                                             Integer size) {
+
+
         Pageable pageable = PageRequest.of(from, size);//.withSort(Sort.by(sort).ascending());
         List<Event> eventList;
         List<Event> sortList = new ArrayList<>();
@@ -131,13 +139,20 @@ public class EventServiceImpl implements EventService {
                                 (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
             }
         } else {
+            LocalDateTime startEvens = LocalDateTime.parse(start,formatter);
+            LocalDateTime endEvens = LocalDateTime.parse(end,formatter);
+            if (endEvens.isBefore(startEvens)) {
+                throw new BadRequestException("Start before end");
+            }
             eventList = eventRepository
                     .searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore
-                            (query, categoryIds, State.PUBLISHED, start, end, pageable);
+                            (query, categoryIds, State.PUBLISHED, startEvens,
+                                    endEvens, pageable);
             if (eventList.size() == 0) {
                 eventList = eventRepository
                         .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore
-                                (query, categoryIds, State.PUBLISHED, start, end, pageable);
+                                (query, categoryIds, State.PUBLISHED, startEvens,
+                                        endEvens, pageable);
             }
         }
 
@@ -204,6 +219,7 @@ public class EventServiceImpl implements EventService {
         if (stateAction != null) {
             if (stateAction.equals("CANCEL_REVIEW")) oldEvent.setState(State.CANCELED);
             if (stateAction.equals("PUBLISH_EVENT")) oldEvent.setState(State.PUBLISHED);
+            if (stateAction.equals("SEND_TO_REVIEW")) oldEvent.setState(State.PENDING);
         }
 
         if (!oldEvent.getState().equals(State.CANCELED)) {
