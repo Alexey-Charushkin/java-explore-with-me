@@ -105,6 +105,7 @@ public class EventServiceImpl implements EventService {
             Integer[] userIds, State[] states, Integer[] categoryIds, LocalDateTime start, LocalDateTime end,
             Integer from, Integer size) {
         Pageable page = PageRequest.of(from, size);
+        if(userIds == null) return Collections.emptyList();
         List<Event> events = eventRepository
                 .findEventsByInitiatorIdInAndStateInAndCategoryIdInAndEventDateIsAfterAndEventDateIsBefore(
                         userIds, states, categoryIds, start, end, page);
@@ -130,6 +131,7 @@ public class EventServiceImpl implements EventService {
         List<Event> eventList;
         List<Event> sortList = new ArrayList<>();
 
+        if(query == null) return Collections.emptyList();
         if (start == null && end == null) {
             eventList = eventRepository.searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfter
                     (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
@@ -139,8 +141,8 @@ public class EventServiceImpl implements EventService {
                                 (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
             }
         } else {
-            LocalDateTime startEvens = LocalDateTime.parse(start,formatter);
-            LocalDateTime endEvens = LocalDateTime.parse(end,formatter);
+            LocalDateTime startEvens = LocalDateTime.parse(start, formatter);
+            LocalDateTime endEvens = LocalDateTime.parse(end, formatter);
             if (endEvens.isBefore(startEvens)) {
                 throw new BadRequestException("Start before end");
             }
@@ -157,10 +159,7 @@ public class EventServiceImpl implements EventService {
         }
 
 
-
         if ((Boolean) pais != null) {
-
-
 
 
             if (pais) {

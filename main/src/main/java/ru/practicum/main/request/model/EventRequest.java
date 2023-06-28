@@ -33,9 +33,16 @@ public class EventRequest {
     @Column(name = "status", nullable = false)
     private EventRequestStatus status;
 
-    public EventRequest(LocalDateTime created, Event event, User user) {
+    public EventRequest(LocalDateTime created, Event event, User user, EventRequestStatus status) {
         this.created = created;
         this.event = event;
         this.requester = user;
+        this.status = status;
     }
+
+//    public EventRequest(LocalDateTime created, Event event, User user) {
+//        this.created = created;
+//        this.event = event;
+//        this.requester = user;
+//    }
 }

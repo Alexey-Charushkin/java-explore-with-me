@@ -36,15 +36,15 @@ public class EventPublicController {
     }
 
     @GetMapping()
-    public List<EventShortDto> searchEvents(@NotBlank @RequestParam("text") String query,
-                                            @RequestParam(name = "categories") Integer[] categoryIds,
-                                            @RequestParam(name = "paid") boolean pais,
+    public List<EventShortDto> searchEvents(@RequestParam(value = "text", required = false) String query,
+                                            @RequestParam(name = "categories", required = false) Integer[] categoryIds,
+                                            @RequestParam(name = "paid", required = false) boolean pais,
                                             @RequestParam(name = "rangeStart", required = false) String start,
                                             @RequestParam(name = "rangeEnd", required = false) String end,
                                             @RequestParam(name = "onlyAvailable", required = false) boolean onlyAvailable,
                                             @RequestParam(name = "sort", required = false) String sort,
-                                            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
-                                            @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
+                                            @RequestParam(name = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                            @RequestParam(name = "size", required = false, defaultValue = "10") @Positive Integer size) {
         log.info("Get =search");
         return eventService.searchEvents(query, categoryIds, pais, start,
                 end, onlyAvailable, sort, from, size);

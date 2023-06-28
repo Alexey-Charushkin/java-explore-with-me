@@ -57,17 +57,22 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId() == userId) {
             throw new ConflictException("Initiator of event dont add event request");
         }
-        if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
-            throw new ConflictException("Participant limit is full");
+        if (event.getParticipantLimit() != 0) {
+            if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
+                throw new ConflictException("Participant limit is full");
+            }
         }
-//        if (!event.isRequestModeration()) {
+
+//        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
 //            status = EventRequestStatus.CONFIRMED;
 //        }
+
 
         EventRequest eventRequest = new EventRequest(
                 LocalDateTime.now(),
                 event,
-                user
+                user,
+                status
         );
         eventRequest.setStatus(status);
 
@@ -124,6 +129,9 @@ public class RequestServiceImpl implements RequestService {
         for (EventRequest eventRequest : eventRequestList) {
 
             if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
+//                if (!event.isRequestModeration()) {
+//            eventRequest.setStatus(EventRequestStatus.CONFIRMED);
+//        }
                 if (eventRequest.getStatus().equals(EventRequestStatus.PENDING)) {
                     eventRequest.setStatus(EventRequestStatus.CONFIRMED);
                     confirmedRequests.add(eventRequest);

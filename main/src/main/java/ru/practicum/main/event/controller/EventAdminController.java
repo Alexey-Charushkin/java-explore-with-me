@@ -15,6 +15,7 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -29,11 +30,11 @@ public class EventAdminController {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @GetMapping
-    public List<EventFullDto> getEventsByIds(@RequestParam(name = "users") Integer[] userIds,
-                                             @RequestParam(name = "states") State[] states,
-                                             @RequestParam(name = "categories") Integer[] categoryIds,
-                                             @RequestParam(name = "rangeStart") String start,
-                                             @RequestParam(name = "rangeEnd") String end,
+    public List<EventFullDto> getEventsByIds(@RequestParam(name = "users", required = false) Integer[] userIds,
+                                             @RequestParam(name = "states", required = false) State[] states,
+                                             @RequestParam(name = "categories", required = false) Integer[] categoryIds,
+                                             @RequestParam(name = "rangeStart", required = false) String start,
+                                             @RequestParam(name = "rangeEnd", required = false) String end,
                                              @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                              @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get /admin/events?users= &states= &categories= &rangeStart= &rangeEnd=  &from= &size= ");
@@ -45,7 +46,7 @@ public class EventAdminController {
     @PatchMapping("{eventId}")
     public EventFullDto patchEvent(@Positive @PathVariable Integer eventId,
                                    @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequestRequest) {
-        log.info("Patch /users/{userId}/events/{eventId}");
+        log.info("Patch admin/events/{eventId}");
         return eventService.patchEvent(eventId,
                 updateEventAdminRequestRequest.getStateAction(),
                 EventMapper.updateEventAdminRequestToEvent(updateEventAdminRequestRequest));

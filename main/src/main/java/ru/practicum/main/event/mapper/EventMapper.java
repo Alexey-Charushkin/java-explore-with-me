@@ -24,7 +24,7 @@ public class EventMapper {
                 newEventDto.getLocation(),
                 newEventDto.getPaid(),
                 newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit(),
-                newEventDto.getRequestModeration() == null ? "true" : newEventDto.getRequestModeration(),
+                newEventDto.getRequestModeration(),
                 newEventDto.getTitle()
         );
     }
@@ -68,7 +68,7 @@ public class EventMapper {
                 event.getLocation(),
                 event.isPaid(),
                 event.getParticipantLimit(),
-                event.getPublishedOn().toString(),
+                event.getPublishedOn().format(formatter),
                 event.isRequestModeration(),
                 event.getState().toString(),
                 event.getTitle(),
