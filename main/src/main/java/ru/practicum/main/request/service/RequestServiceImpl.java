@@ -60,7 +60,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
             throw new ConflictException("Participant limit is full");
         }
-//        if (event.isRequestModeration() == false) {
+//        if (!event.isRequestModeration()) {
 //            status = EventRequestStatus.CONFIRMED;
 //        }
 
@@ -70,6 +70,7 @@ public class RequestServiceImpl implements RequestService {
                 user
         );
         eventRequest.setStatus(status);
+
 
         return RequestMapper.toParticipationRequestDto(requestRepository.save(eventRequest));
     }
@@ -126,7 +127,8 @@ public class RequestServiceImpl implements RequestService {
                 if (eventRequest.getStatus().equals(EventRequestStatus.PENDING)) {
                     eventRequest.setStatus(EventRequestStatus.CONFIRMED);
                     confirmedRequests.add(eventRequest);
-                    event.setParticipantLimit(event.getParticipantLimit() + 1);
+                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                    eventRepository.save(event);
                 }
             } else {
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
