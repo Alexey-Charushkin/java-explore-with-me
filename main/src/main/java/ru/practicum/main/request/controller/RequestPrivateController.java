@@ -2,9 +2,12 @@ package ru.practicum.main.request.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpServerErrorException;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.UpdateEventUserRequest;
@@ -35,12 +38,17 @@ public class RequestPrivateController {
 
     private final RequestService requestService;
 
+
     @PostMapping("{userId}/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto save(@Positive @PathVariable(name = "userId") Integer userId,
-                                        @RequestParam(name = "eventId") Integer eventId) {
+                                        @RequestParam(name = "eventId", required = false) Integer eventId) {
+        try {
         log.info("post {userId}/requests?eventId= ");
         return requestService.save(userId, eventId);
+           } catch (InvalidDataAccessApiUsageException e) {
+             throw new BadRequestException("Not found");
+           }
     }
 
     @GetMapping("{userId}/requests")
@@ -51,8 +59,8 @@ public class RequestPrivateController {
 
     @PatchMapping("{userId}/requests/{requestId}/cancel")
     public ParticipationRequestDto patchByUserIdAndEventId(@Positive @PathVariable Integer userId,
-                                                @Positive @PathVariable Integer requestId
-                                                ) {
+                                                           @Positive @PathVariable Integer requestId
+    ) {
         log.info("Patch /users/{userId}/requests/{eventId}");
         return requestService.cancelEventRequest(userId, requestId);
     }

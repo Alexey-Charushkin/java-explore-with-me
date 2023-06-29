@@ -44,6 +44,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto create(Integer userId, Integer catId, Event event) {
+        if (event.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Start is in past");
+        }
         event.setCreatedOn(LocalDateTime.now());
         event.setInitiator(userService.findById(userId));
         event.setCategory(categoryService.findById(catId));

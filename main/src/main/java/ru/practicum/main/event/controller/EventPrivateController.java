@@ -55,7 +55,7 @@ class EventPrivateController {
     @PatchMapping("{userId}/events/{eventId}")
     public EventFullDto patchByUserIdAndEventId(@Positive @PathVariable Integer userId,
                                                 @Positive @PathVariable Integer eventId,
-                                                @RequestBody UpdateEventUserRequest updateEventUserRequest) {
+                                                @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
         log.info("Patch /users/{userId}/events/{eventId}");
         return eventService.patchByUserIdAndEventId(userId, eventId,
                 updateEventUserRequest.getStateAction(), EventMapper.updateEventUserRequestToEvent(updateEventUserRequest));
@@ -71,7 +71,7 @@ class EventPrivateController {
     @PatchMapping("{userId}/events/{eventId}/requests")
     public EventRequestStatusUpdateResult patchByUserIdAndEventId(@Positive @PathVariable Integer userId,
                                                                   @Positive @PathVariable Integer eventId,
-                                                                  @Validated @RequestBody EventRequestStatusUpdateRequest
+                                                                  @Valid @RequestBody EventRequestStatusUpdateRequest
                                                                          updateRequest) {
         log.info("Patch user/{userId}/events/{eventId}/requests");
         return requestService.patchRequestsByUserIdAndEventId(userId, eventId, updateRequest);
