@@ -89,6 +89,15 @@ public class EventServiceImpl implements EventService {
         if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
             throw new BadRequestException("User is not initiator");
         }
+
+        if (eventToSave.getState().equals(State.PENDING) && stateAction != null) {
+            if (stateAction.equals("REJECT_EVENT")) {
+                eventToSave.setState(State.CANCELED);
+                eventRepository.save(eventToSave);
+                return EventMapper.eventToEventFullDto(eventToSave);
+            }
+        }
+
         if (check) {
             updateFields(stateAction, eventToSave, event);
             eventRepository.save(eventToSave);
@@ -100,6 +109,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchEvent(Integer eventId, String stateAction,
                                    Event event) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
+
         boolean check = checkEvent(optionalEvent);
         if (event.getEventDate() != null) {
             if (event.getEventDate().isBefore(LocalDateTime.now())) {
@@ -108,6 +118,15 @@ public class EventServiceImpl implements EventService {
         }
 
         Event eventToSave = optionalEvent.get();
+        if (eventToSave.getState().equals(State.PENDING) && stateAction != null) {
+            if (stateAction.equals("REJECT_EVENT")) {
+                eventToSave.setState(State.CANCELED);
+                eventRepository.save(eventToSave);
+                return EventMapper.eventToEventFullDto(eventToSave);
+            }
+        }
+
+
         if (check) {
             updateFields(stateAction, eventToSave, event);
             eventRepository.save(eventToSave);
@@ -197,9 +216,7 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-
         if ((Boolean) pais != null) {
-
 
             if (pais) {
                 for (Event event : eventList) {
@@ -231,7 +248,6 @@ public class EventServiceImpl implements EventService {
                 eventList.addAll(sortList);
             }
         }
-
         return EventMapper.toEventShortDtoList(eventList);
     }
 
@@ -241,6 +257,7 @@ public class EventServiceImpl implements EventService {
         if (!optionalEvent.isPresent()) {
             throw new NotFoundException("Event with userId not found");
         }
+
         if (optionalEvent.get().getState().equals(State.CANCELED)
                 || optionalEvent.get().getState().equals(State.PENDING)) {
             oldEvent = optionalEvent.get();
@@ -258,6 +275,7 @@ public class EventServiceImpl implements EventService {
             if (stateAction.equals("CANCEL_REVIEW")) oldEvent.setState(State.CANCELED);
             if (stateAction.equals("PUBLISH_EVENT")) oldEvent.setState(State.PUBLISHED);
             if (stateAction.equals("SEND_TO_REVIEW")) oldEvent.setState(State.PENDING);
+            if (stateAction.equals("REJECT_EVENT")) oldEvent.setState(State.CANCELED);
         }
 
         if (!oldEvent.getState().equals(State.CANCELED)) {

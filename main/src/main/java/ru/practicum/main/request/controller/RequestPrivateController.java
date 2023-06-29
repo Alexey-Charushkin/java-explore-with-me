@@ -35,10 +35,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("users")
 public class RequestPrivateController {
-
     private final RequestService requestService;
-
-
     @PostMapping("{userId}/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto save(@Positive @PathVariable(name = "userId") Integer userId,

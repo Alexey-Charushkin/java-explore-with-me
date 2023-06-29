@@ -63,10 +63,9 @@ public class RequestServiceImpl implements RequestService {
             }
         }
 
-//        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
-//            status = EventRequestStatus.CONFIRMED;
-//        }
-
+        if (!event.isRequestModeration() && event.getParticipantLimit() == 0) {
+            status = EventRequestStatus.CONFIRMED;
+        }
 
         EventRequest eventRequest = new EventRequest(
                 LocalDateTime.now(),
@@ -74,10 +73,7 @@ public class RequestServiceImpl implements RequestService {
                 user,
                 status
         );
-        eventRequest.setStatus(status);
-
-
-        return RequestMapper.toParticipationRequestDto(requestRepository.save(eventRequest));
+          return RequestMapper.toParticipationRequestDto(requestRepository.save(eventRequest));
     }
 
     @Override
