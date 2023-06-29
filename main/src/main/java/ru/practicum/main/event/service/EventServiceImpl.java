@@ -76,6 +76,12 @@ public class EventServiceImpl implements EventService {
                                                 Event event) {
         Optional<Event> optionalEvent = Optional.of(eventRepository.findByIdAndInitiatorId(eventId, userId));
         boolean check = checkEvent(optionalEvent);
+        if (event.getEventDate() != null) {
+            if (event.getEventDate().isBefore(LocalDateTime.now())) {
+                throw new BadRequestException("Start is in past");
+            }
+        }
+
         Event eventToSave = optionalEvent.get();
         if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
             throw new BadRequestException("User is not initiator");
@@ -92,7 +98,7 @@ public class EventServiceImpl implements EventService {
                                    Event event) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         boolean check = checkEvent(optionalEvent);
-        if(event.getEventDate() != null) {
+        if (event.getEventDate() != null) {
             if (event.getEventDate().isBefore(LocalDateTime.now())) {
                 throw new BadRequestException("Start is in past");
             }

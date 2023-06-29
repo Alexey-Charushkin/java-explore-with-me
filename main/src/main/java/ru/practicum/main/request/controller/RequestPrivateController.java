@@ -53,7 +53,7 @@ public class RequestPrivateController {
     public ParticipationRequestDto patchByUserIdAndEventId(@Positive @PathVariable Integer userId,
                                                 @Positive @PathVariable Integer requestId
                                                 ) {
-        log.info("Patch /users/{userId}/events/{eventId}");
+        log.info("Patch /users/{userId}/requests/{eventId}");
         return requestService.cancelEventRequest(userId, requestId);
     }
 
