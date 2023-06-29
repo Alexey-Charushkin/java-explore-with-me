@@ -43,8 +43,8 @@ public class EventPublicController {
                                             @RequestParam(name = "rangeEnd", required = false) String end,
                                             @RequestParam(name = "onlyAvailable", required = false) boolean onlyAvailable,
                                             @RequestParam(name = "sort", required = false) String sort,
-                                            @RequestParam(name = "from", required = false, defaultValue = "0") @PositiveOrZero Integer from,
-                                            @RequestParam(name = "size", required = false, defaultValue = "10") @Positive Integer size) {
+                                            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                            @RequestParam(name = "size",  defaultValue = "10") @Positive Integer size) {
         log.info("Get =search");
         return eventService.searchEvents(query, categoryIds, pais, start,
                 end, onlyAvailable, sort, from, size);
