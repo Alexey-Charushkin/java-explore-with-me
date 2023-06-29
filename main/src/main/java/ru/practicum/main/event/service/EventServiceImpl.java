@@ -92,6 +92,12 @@ public class EventServiceImpl implements EventService {
                                    Event event) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
         boolean check = checkEvent(optionalEvent);
+        if(event.getEventDate() != null) {
+            if (event.getEventDate().isBefore(LocalDateTime.now())) {
+                throw new BadRequestException("Start is in past");
+            }
+        }
+
         Event eventToSave = optionalEvent.get();
         if (check) {
             updateFields(stateAction, eventToSave, event);
