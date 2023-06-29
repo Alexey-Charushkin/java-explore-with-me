@@ -39,8 +39,8 @@ public class EventAdminController {
                                              @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get /admin/events?users= &states= &categories= &rangeStart= &rangeEnd=  &from= &size= ");
         return eventService.findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
-                userIds, states, categoryIds, LocalDateTime.parse(start, formatter),
-                LocalDateTime.parse(end, formatter), from, size);
+                userIds, states, categoryIds, start,
+                end, from, size);
     }
 
     @PatchMapping("{eventId}")

@@ -34,6 +34,16 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     List<Event> findAllByCategoryIdInAndStateIsAndEventDateIsAfter
             (Integer[] categoryIds, State state, LocalDateTime start, Pageable pageable);
+
+    List<Event> findAllByCategoryIdInAndStateInAndEventDateIsAfter
+            (Integer[] categoryIds, State[] state, LocalDateTime start, Pageable pageable);
+
+    List<Event> findAllByStateInAndEventDateIsAfter
+            (State[] state, LocalDateTime start, Pageable pageable);
+
+    List<Event> findAllByEventDateIsAfter
+            (LocalDateTime start, Pageable pageable);
+
 //    String query, Integer[] categoryIds, boolean pais, LocalDateTime start,
 //    LocalDateTime end, boolean onlyAvailable, String sort, Integer from,
 //    Integer size

@@ -1,5 +1,6 @@
 package ru.practicum.main.event.service;
 
+import org.springframework.data.domain.Pageable;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.State;
@@ -16,17 +17,17 @@ public interface EventService {
 
     EventFullDto findByUserIdAndEventId(Integer userId, Integer eventId);
 
-    EventFullDto  patchByUserIdAndEventId(Integer userId, Integer eventId, String stateAction,
-                                                            Event eventUserRequest);
+    EventFullDto patchByUserIdAndEventId(Integer userId, Integer eventId, String stateAction,
+                                         Event eventUserRequest);
 
     EventFullDto patchEvent(Integer eventId, String stateAction, Event event);
 
     List<EventFullDto> findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
-            Integer[] userIds, State[] states, Integer[] categoryIds, LocalDateTime start,
-            LocalDateTime end, Integer from, Integer size);
+            Integer[] userIds, State[] states, Integer[] categoryIds, String start,
+            String end, Integer from, Integer size);
 
     EventFullDto findById(Integer eventId);
 
     List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, String start,
-                String end, boolean onlyAvailable, String sort, Integer from, Integer size);
+                                     String end, boolean onlyAvailable, String sort, Integer from, Integer size);
 }

@@ -102,14 +102,33 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullDto> findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
-            Integer[] userIds, State[] states, Integer[] categoryIds, LocalDateTime start, LocalDateTime end,
+            Integer[] userIds, State[] states, Integer[] categoryIds, String start, String end,
             Integer from, Integer size) {
         Pageable page = PageRequest.of(from, size);
-        if (userIds == null) return Collections.emptyList();
-        List<Event> events = eventRepository
-                .findEventsByInitiatorIdInAndStateInAndCategoryIdInAndEventDateIsAfterAndEventDateIsBefore(
-                        userIds, states, categoryIds, start, end, page);
-        return EventMapper.toEventFullDtoList(events);
+        List<Event> events;
+        if (start != null && end != null) {
+            LocalDateTime startEvens = LocalDateTime.parse(start, formatter);
+            LocalDateTime endEvens = LocalDateTime.parse(end, formatter);
+            events = eventRepository
+                    .findEventsByInitiatorIdInAndStateInAndCategoryIdInAndEventDateIsAfterAndEventDateIsBefore(
+                            userIds, states, categoryIds, startEvens, endEvens, page);
+            return EventMapper.toEventFullDtoList(events);
+        } else {
+            if (userIds != null) {
+                events = eventRepository.findAllByCategoryIdInAndStateInAndEventDateIsAfter
+                        (categoryIds, states, LocalDateTime.now(), page);
+                return EventMapper.toEventFullDtoList(events);
+            }
+            if (categoryIds != null) {
+                events = eventRepository.findAllByStateInAndEventDateIsAfter
+                        (states, LocalDateTime.now(), page);
+                return EventMapper.toEventFullDtoList(events);
+            } else {
+                events = eventRepository.findAllByEventDateIsAfter
+                        (LocalDateTime.now(), page);
+                return EventMapper.toEventFullDtoList(events);
+            }
+        }
     }
 
     @Override
