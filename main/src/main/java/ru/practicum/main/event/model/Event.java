@@ -67,17 +67,7 @@ public class Event {
     @Transient
     private Integer views;
 
-    public Event(String annotation, String description, LocalDateTime eventDate, Location location,
-                 String paid, Integer participantLimit, String requestModeration, String title) {
-        this.annotation = annotation;
-        this.description = description;
-        this.eventDate = eventDate;
-        this.location = location;
-        this.paid = Boolean.parseBoolean(paid);
-        this.participantLimit = participantLimit;
-        this.requestModeration = Boolean.parseBoolean(requestModeration);
-        this.title = title;
-    }
+
 
     public Event(String annotation, String description, LocalDateTime parse, Location location,
                  boolean paid, Integer participantLimit, boolean requestModeration, String title) {

@@ -22,9 +22,9 @@ public class EventMapper {
                 newEventDto.getDescription(),
                 LocalDateTime.parse(newEventDto.getEventDate(), formatter),
                 newEventDto.getLocation(),
-                newEventDto.getPaid(),
+                Boolean.parseBoolean(newEventDto.getPaid()),
                 newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit(),
-                newEventDto.getRequestModeration(),
+                newEventDto.getRequestModeration() == null ? true : Boolean.parseBoolean(newEventDto.getRequestModeration()),
                 newEventDto.getTitle()
         );
     }
