@@ -8,10 +8,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Log4j2
 @RestControllerAdvice
 public class ErrorHandler {
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -43,15 +47,16 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleAvailableMethodConflictException(final ConflictException e) {
+    public ApiError handleAvailableMethodConflictException(final ConflictException e) {
         log.debug("Получен статус 409 Bad Conflict {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
+        return new ApiError(e.getStackTrace(),e.getMessage(), "Conflict with existing data",  HttpStatus.CONFLICT,
+                LocalDateTime.now().format(formatter));
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleAvailableInternalServerErrorException(final Throwable e) {
-        log.debug("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
-    }
+//    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ErrorResponse handleAvailableInternalServerErrorException(final Throwable e) {
+//        log.debug("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
+//        return new ErrorResponse(e.getMessage());
+//    }
 }

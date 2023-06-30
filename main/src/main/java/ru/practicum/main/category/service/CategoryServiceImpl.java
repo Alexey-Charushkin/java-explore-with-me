@@ -12,6 +12,7 @@ import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
+import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 
 import java.util.List;
@@ -34,6 +35,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto patch(Integer catId, NewCategoryDto newCategoryDto) {
         Category category = findById(catId);
+        List<Category> categories = categoryRepository.findAll();
+
+        boolean isDuplicate = categories.stream()
+                .anyMatch(c -> c.getName().equals(newCategoryDto.getName()));
+
+        if (isDuplicate) {
+            throw new ConflictException("Category is duplicate");
+        }
         category.setName(newCategoryDto.getName());
         return CategoryMapper.categoryToCategoryDto(category);
 
