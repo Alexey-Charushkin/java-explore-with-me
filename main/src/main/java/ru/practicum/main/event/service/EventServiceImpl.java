@@ -16,6 +16,7 @@ import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.exception.BadRequestException;
+import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.locations.dao.LocationsRepository;
 import ru.practicum.main.user.service.UserService;
@@ -118,6 +119,15 @@ public class EventServiceImpl implements EventService {
         }
 
         Event eventToSave = optionalEvent.get();
+        if (eventToSave.getState().equals(State.PUBLISHED) && stateAction.equals("PUBLISH_EVENT")) {
+            throw new ConflictException("Event already published");
+        }
+        if (eventToSave.getState().equals(State.CANCELED) && stateAction.equals("PUBLISH_EVENT")) {
+            throw new ConflictException("Event publish canceled");
+        }
+        if (eventToSave.getState().equals(State.PUBLISHED) && stateAction.equals("REJECT_EVENT")) {
+            throw new ConflictException("Event already published");
+        }
         if (eventToSave.getState().equals(State.PENDING) && stateAction != null) {
             if (stateAction.equals("REJECT_EVENT")) {
                 eventToSave.setState(State.CANCELED);

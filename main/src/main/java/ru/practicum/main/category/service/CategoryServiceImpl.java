@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,14 @@ import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
+import ru.practicum.main.event.dao.EventRepository;
+import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -25,11 +30,16 @@ import java.util.List;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public CategoryDto save(Category category) {
-        categoryRepository.save(category);
-        return CategoryMapper.categoryToCategoryDto(category);
+        try {
+            categoryRepository.save(category);
+            return CategoryMapper.categoryToCategoryDto(category);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException("Category with this name is already exist");
+        }
     }
 
     @Override
@@ -56,7 +66,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteById(Integer catId) {
-        //  Обратите внимание: с категорией не должно быть связано ни одного события.
+       Optional <List<Event>> events = Optional.of(eventRepository.findAllByCategoryId(catId));
+        if (events.isPresent()) {
+            throw new ConflictException("Not delete. Category contains events");
+        }
         categoryRepository.delete(findById(catId));
     }
 

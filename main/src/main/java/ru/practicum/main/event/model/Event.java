@@ -48,19 +48,19 @@ public class Event {
     private Location location;
 
     @Column(name = "paid")
-    private boolean paid; // Нужно ли оплачивать участие
+    private boolean paid;
 
     @Column(name = "participant_limit")
-    private Integer participantLimit; // example: 10 default: 0. Ограничение на количество участников. Значение 0 - означает отсутствие ограничения
+    private Integer participantLimit;
 
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
     @Column(name = "request_moderation")
-    private boolean requestModeration; // example: true default: true Нужна ли пре-модерация заявок на участие
+    private boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
-    private State state; // example: PUBLISHED   Список состояний жизненного цикла события  Enum:
+    private State state;
     @Column(name = "title", nullable = false)
     private String title;
 

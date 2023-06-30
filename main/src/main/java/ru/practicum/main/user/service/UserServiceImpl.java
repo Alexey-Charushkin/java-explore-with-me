@@ -4,9 +4,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.user.dao.UserRepository;
 import ru.practicum.main.user.dto.UserDto;
@@ -27,8 +29,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto save(User user) {
-        userRepository.save(user);
-        return UserMapper.userToUserDto(user);
+        try {
+            userRepository.save(user);
+            return UserMapper.userToUserDto(user);
+        } catch (
+                DataIntegrityViolationException e) {
+            throw new ConflictException("User with this name is already exist");
+        }
     }
 
     @Override
