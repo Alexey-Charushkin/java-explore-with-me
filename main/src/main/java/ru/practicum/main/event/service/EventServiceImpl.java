@@ -91,6 +91,10 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("User is not initiator");
         }
 
+        if (eventToSave.getState().equals(State.PUBLISHED) && stateAction == null) {
+            throw new ConflictException("Event already published");
+        }
+
         if (eventToSave.getState().equals(State.PENDING) && stateAction != null) {
             if (stateAction.equals("REJECT_EVENT")) {
                 eventToSave.setState(State.CANCELED);

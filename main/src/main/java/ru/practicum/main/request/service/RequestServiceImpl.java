@@ -20,7 +20,6 @@ import ru.practicum.main.request.model.EventRequest;
 import ru.practicum.main.request.model.EventRequestStatus;
 import ru.practicum.main.user.dao.UserRepository;
 import ru.practicum.main.user.model.User;
-import ru.practicum.main.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("User not found."));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
-        EventRequestStatus status = EventRequestStatus.PENDING;
 
         EventRequest oldEventRequest = requestRepository.findByRequesterIdAndEventId(userId, eventId);
 
@@ -57,31 +55,30 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId() == userId) {
             throw new ConflictException("Initiator of event dont add event request");
         }
-        if (event.getParticipantLimit() != 0) {
-            if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
-                throw new ConflictException("Participant limit is full");
+        if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
+            throw new ConflictException("Participant limit is full");
+        }
+
+        EventRequest request = new EventRequest(
+                LocalDateTime.now(),
+                event,
+                user
+        );
+
+        if (!event.isRequestModeration()) {
+            if (event.getParticipantLimit() == 0) {
+//                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+//                eventRepository.save(event);
+                request.setStatus(EventRequestStatus.CONFIRMED);
+            } else {
+                request.setStatus(EventRequestStatus.PENDING);
             }
-            if(!event.isRequestModeration()) {
+            if (event.getConfirmedRequests() < event.getParticipantLimit()) {
                 event.setConfirmedRequests(event.getConfirmedRequests() + 1);
                 eventRepository.save(event);
             }
         }
-
-        if (!event.isRequestModeration() && event.getParticipantLimit() == 0) {
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-            eventRepository.save(event);
-            status = EventRequestStatus.CONFIRMED;
-        }
-
-        EventRequest eventRequest = new EventRequest(
-                LocalDateTime.now(),
-                event,
-                user,
-                status
-        );
-
-
-          return RequestMapper.toParticipationRequestDto(requestRepository.save(eventRequest));
+        return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 
     @Override
@@ -113,6 +110,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("User not found."));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
+
         List<EventRequest> eventRequestList = requestRepository.findByIdIn((updateRequest.getRequestIds()));
         List<EventRequest> confirmedRequests = new ArrayList<>();
         List<EventRequest> rejectedRequests = new ArrayList<>();
@@ -120,6 +118,11 @@ public class RequestServiceImpl implements RequestService {
 
         if (updateRequest.getStatus().equals(EventRequestStatus.REJECTED)) {
             for (EventRequest eventRequest : eventRequestList) {
+
+                if (eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)
+                        && updateRequest.getStatus().equals(EventRequestStatus.REJECTED)) {
+                    throw new ConflictException("Status is already confirmed");
+                }
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
                 rejectedRequests.add(eventRequest);
             }
@@ -133,14 +136,14 @@ public class RequestServiceImpl implements RequestService {
         for (EventRequest eventRequest : eventRequestList) {
 
             if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
-//                if (!event.isRequestModeration()) {
-//            eventRequest.setStatus(EventRequestStatus.CONFIRMED);
-//        }
+
                 if (eventRequest.getStatus().equals(EventRequestStatus.PENDING)) {
-                    eventRequest.setStatus(EventRequestStatus.CONFIRMED);
-                    confirmedRequests.add(eventRequest);
-                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                    eventRepository.save(event);
+                    if (!eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)) {
+                        eventRequest.setStatus(EventRequestStatus.CONFIRMED);
+                        confirmedRequests.add(eventRequest);
+                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                        eventRepository.save(event);
+                    }
                 }
             } else {
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
