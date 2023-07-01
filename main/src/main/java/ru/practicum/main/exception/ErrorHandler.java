@@ -19,44 +19,49 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+    public ApiError handleNotFoundException(final NotFoundException e) {
         log.debug("Получен статус 404 Not found {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
+        return new ApiError(e.getStackTrace(), e.getMessage(), "NotFoundException", HttpStatus.NOT_FOUND,
+                LocalDateTime.now().format(formatter));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleAvailableBadRequestException(final ConstraintViolationException e) {
+    public ApiError handleAvailableBadRequestException(final ConstraintViolationException e) {
         log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
+        return new ApiError(e.getStackTrace(), e.getMessage(), "ConstraintViolationException", HttpStatus.BAD_REQUEST,
+                LocalDateTime.now().format(formatter));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleAvailableBadRequestException(final BadRequestException e) {
+    public ApiError handleAvailableBadRequestException(final BadRequestException e) {
         log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
+        return new ApiError(e.getStackTrace(), e.getMessage(), "BadRequestException", HttpStatus.BAD_REQUEST,
+                LocalDateTime.now().format(formatter));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleAvailableMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+    public ApiError handleAvailableMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         log.debug("Получен статус 400 Bad Request {}", e.getMessage(), e);
-        return new ErrorResponse(e.getMessage());
+        return new ApiError(e.getStackTrace(), e.getMessage(), "MethodArgumentNotValid", HttpStatus.BAD_REQUEST,
+                LocalDateTime.now().format(formatter));
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleAvailableMethodConflictException(final ConflictException e) {
         log.debug("Получен статус 409 Bad Conflict {}", e.getMessage(), e);
-        return new ApiError(e.getStackTrace(),e.getMessage(), "Conflict with existing data",  HttpStatus.CONFLICT,
+        return new ApiError(e.getStackTrace(), e.getMessage(), "Conflict with existing data", HttpStatus.CONFLICT,
                 LocalDateTime.now().format(formatter));
     }
 
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-//    public ErrorResponse handleAvailableInternalServerErrorException(final Throwable e) {
-//        log.debug("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
-//        return new ErrorResponse(e.getMessage());
-//    }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ApiError handleAvailableInternalServerErrorException(final Throwable e) {
+        log.debug("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
+        return new ApiError(e.getStackTrace(), e.getMessage(), "Server Error", HttpStatus.INTERNAL_SERVER_ERROR,
+                LocalDateTime.now().format(formatter));
+    }
 }
