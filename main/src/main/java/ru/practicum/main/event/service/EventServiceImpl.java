@@ -7,7 +7,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.service.CategoryService;
@@ -65,10 +64,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto findByUserIdAndEventId(Integer userId, Integer eventId) {
         Optional<Event> event = Optional.of(eventRepository.findByIdAndInitiatorId(eventId, userId));
-        if (!event.isPresent()) {
-            throw new NotFoundException("Event with userId " + userId + " and eventId " + eventId + " not found");
-        }
         return EventMapper.eventToEventFullDto(event.get());
+
     }
 
     @Override
@@ -104,6 +101,12 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchEvent(Integer eventId, String stateAction,
                                    Event event) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
+        Event eventToSave;
+        if (optionalEvent.isPresent()) {
+            eventToSave = optionalEvent.get();
+        } else {
+            throw new NotFoundException("Event not found");
+        }
 
         if (event.getEventDate() != null) {
             if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
@@ -111,7 +114,7 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        Event eventToSave = optionalEvent.get();
+        // Event eventToSave = optionalEvent.get();
         if (stateAction != null) {
             if (eventToSave.getState().equals(State.PUBLISHED) && stateAction.equals("PUBLISH_EVENT")) {
                 throw new ConflictException("Event already published");
@@ -146,7 +149,6 @@ public class EventServiceImpl implements EventService {
             events = eventRepository
                     .findEventsByInitiatorIdInAndStateInAndCategoryIdInAndEventDateIsAfterAndEventDateIsBefore(
                             userIds, states, categoryIds, startEvens, endEvens, page);
-            return EventMapper.toEventFullDtoList(events);
         } else {
             if (userIds != null) {
                 events = eventRepository.findAllByCategoryIdInAndStateInAndEventDateIsAfter
@@ -156,13 +158,12 @@ public class EventServiceImpl implements EventService {
             if (categoryIds != null) {
                 events = eventRepository.findAllByStateInAndEventDateIsAfter
                         (states, LocalDateTime.now(), page);
-                return EventMapper.toEventFullDtoList(events);
             } else {
                 events = eventRepository.findAllByEventDateIsAfter
                         (LocalDateTime.now(), page);
-                return EventMapper.toEventFullDtoList(events);
             }
         }
+        return EventMapper.toEventFullDtoList(events);
     }
 
     @Override
@@ -184,21 +185,7 @@ public class EventServiceImpl implements EventService {
         List<Event> eventList;
         List<Event> sortList = new ArrayList<>();
 
-        if (start == null && end == null) {
-            if (query != null) {
-                eventList = eventRepository.searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfter
-                        (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
-                if (eventList.size() == 0) {
-                    eventList = eventRepository
-                            .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfter
-                                    (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
-                }
-            } else {
-                eventList = eventRepository.findAllByCategoryIdInAndStateIsAndEventDateIsAfter
-                        (categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
-            }
-
-        } else {
+        if (start != null && end != null) {
             LocalDateTime startEvens = LocalDateTime.parse(start, formatter);
             LocalDateTime endEvens = LocalDateTime.parse(end, formatter);
             if (endEvens.isBefore(startEvens)) {
@@ -214,43 +201,49 @@ public class EventServiceImpl implements EventService {
                                 (query, categoryIds, State.PUBLISHED, startEvens,
                                         endEvens, pageable);
             }
+        } else {
+            if (query != null) {
+                eventList = eventRepository.searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfter
+                        (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+                if (eventList.size() == 0) {
+                    eventList = eventRepository
+                            .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfter
+                                    (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+                }
+            } else {
+                eventList = eventRepository.findAllByCategoryIdInAndStateIsAndEventDateIsAfter
+                        (categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+            }
         }
 
         if (sort != null && sort.equals("EVENT_DATE")) {
             eventList = eventList.stream().sorted(Comparator.comparing(Event::getEventDate)).collect(Collectors.toList());
         }
 
-        if ((Boolean) pais != null) {
-
-            if (pais) {
-                for (Event event : eventList) {
-                    if (event.isPaid()) {
-                        sortList.add(event);
-                    }
+        if (pais) {
+            for (Event event : eventList) {
+                if (event.isPaid()) {
+                    sortList.add(event);
                 }
-                eventList.clear();
-                eventList.addAll(sortList);
-            } else {
-                for (Event event : eventList) {
-                    if (!event.isPaid()) {
-                        sortList.add(event);
-                    }
+            }
+        } else {
+            for (Event event : eventList) {
+                if (!event.isPaid()) {
+                    sortList.add(event);
                 }
-                eventList.clear();
-                eventList.addAll(sortList);
             }
         }
+        eventList.clear();
+        eventList.addAll(sortList);
 
-        if ((Boolean) onlyAvailable != null) {
-            if (onlyAvailable) {
-                for (Event event : eventList) {
-                    if (event.getConfirmedRequests() < event.getParticipantLimit()) {
-                        sortList.add(event);
-                    }
+        if (onlyAvailable) {
+            for (Event event : eventList) {
+                if (event.getConfirmedRequests() < event.getParticipantLimit()) {
+                    sortList.add(event);
                 }
-                eventList.clear();
-                eventList.addAll(sortList);
             }
+            eventList.clear();
+            eventList.addAll(sortList);
         }
         return EventMapper.toEventShortDtoList(eventList);
     }
@@ -284,12 +277,11 @@ public class EventServiceImpl implements EventService {
                 oldEvent.setLocation(event.getLocation());
             }
 
-            if ((Boolean) event.isPaid() != null) oldEvent.setPaid(event.isPaid());
+            oldEvent.setPaid(event.isPaid());
 
             if (event.getParticipantLimit() != null) oldEvent.setParticipantLimit(event.getParticipantLimit());
 
-            if ((Boolean) event.isRequestModeration() != null)
-                oldEvent.setRequestModeration(event.isRequestModeration());
+            oldEvent.setRequestModeration(event.isRequestModeration());
 
             if (event.getParticipantLimit() != null) oldEvent.setParticipantLimit(event.getParticipantLimit());
 
