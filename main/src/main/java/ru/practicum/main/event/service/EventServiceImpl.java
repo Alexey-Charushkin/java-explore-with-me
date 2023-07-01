@@ -23,10 +23,7 @@ import ru.practicum.main.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -40,7 +37,6 @@ public class EventServiceImpl implements EventService {
     private final CategoryService categoryService;
     private final EventRepository eventRepository;
     private final LocationsRepository locationsRepository;
-
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
@@ -79,34 +75,28 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchByUserIdAndEventId(Integer userId, Integer eventId, String stateAction,
                                                 Event event) {
         Optional<Event> optionalEvent = Optional.of(eventRepository.findByIdAndInitiatorId(eventId, userId));
-        boolean check = checkEvent(optionalEvent);
         if (event.getEventDate() != null) {
-            if (event.getEventDate().isBefore(LocalDateTime.now())) {
+            if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
                 throw new BadRequestException("Start is in past");
             }
         }
 
         Event eventToSave = optionalEvent.get();
-        if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
-            throw new BadRequestException("User is not initiator");
-        }
-
-        if (eventToSave.getState().equals(State.PUBLISHED) && stateAction == null) {
-            throw new ConflictException("Event already published");
-        }
-
-        if (eventToSave.getState().equals(State.PENDING) && stateAction != null) {
-            if (stateAction.equals("REJECT_EVENT")) {
-                eventToSave.setState(State.CANCELED);
+        if (stateAction != null) {
+            if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
+                throw new BadRequestException("User is not initiator");
+            }
+            if (eventToSave.getState().equals(State.PUBLISHED)) {
+                throw new ConflictException("Event already published");
+            }
+            if (eventToSave.getState().equals(State.CANCELED) && stateAction.equals("SEND_TO_REVIEW")) {
+                eventToSave.setState(State.PENDING);
                 eventRepository.save(eventToSave);
                 return EventMapper.eventToEventFullDto(eventToSave);
             }
         }
-
-        if (check) {
-            updateFields(stateAction, eventToSave, event);
-            eventRepository.save(eventToSave);
-        }
+        updateFields(stateAction, eventToSave, event);
+        eventRepository.save(eventToSave);
         return EventMapper.eventToEventFullDto(eventToSave);
     }
 
@@ -115,24 +105,23 @@ public class EventServiceImpl implements EventService {
                                    Event event) {
         Optional<Event> optionalEvent = eventRepository.findById(eventId);
 
-        boolean check = checkEvent(optionalEvent);
         if (event.getEventDate() != null) {
-            if (event.getEventDate().isBefore(LocalDateTime.now())) {
+            if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
                 throw new BadRequestException("Start is in past");
             }
         }
 
         Event eventToSave = optionalEvent.get();
-        if (eventToSave.getState().equals(State.PUBLISHED) && stateAction.equals("PUBLISH_EVENT")) {
-            throw new ConflictException("Event already published");
-        }
-        if (eventToSave.getState().equals(State.CANCELED) && stateAction.equals("PUBLISH_EVENT")) {
-            throw new ConflictException("Event publish canceled");
-        }
-        if (eventToSave.getState().equals(State.PUBLISHED) && stateAction.equals("REJECT_EVENT")) {
-            throw new ConflictException("Event already published");
-        }
-        if (eventToSave.getState().equals(State.PENDING) && stateAction != null) {
+        if (stateAction != null) {
+            if (eventToSave.getState().equals(State.PUBLISHED) && stateAction.equals("PUBLISH_EVENT")) {
+                throw new ConflictException("Event already published");
+            }
+            if (eventToSave.getState().equals(State.CANCELED) && stateAction.equals("PUBLISH_EVENT")) {
+                throw new ConflictException("Event publish canceled");
+            }
+            if (eventToSave.getState().equals(State.PUBLISHED) && stateAction.equals("REJECT_EVENT")) {
+                throw new ConflictException("Event already published");
+            }
             if (stateAction.equals("REJECT_EVENT")) {
                 eventToSave.setState(State.CANCELED);
                 eventRepository.save(eventToSave);
@@ -140,11 +129,8 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-
-        if (check) {
-            updateFields(stateAction, eventToSave, event);
-            eventRepository.save(eventToSave);
-        }
+        updateFields(stateAction, eventToSave, event);
+        eventRepository.save(eventToSave);
         return EventMapper.eventToEventFullDto(eventToSave);
     }
 
@@ -194,7 +180,7 @@ public class EventServiceImpl implements EventService {
                                             Integer size) {
 
 
-        Pageable pageable = PageRequest.of(from, size);//.withSort(Sort.by(sort).ascending());
+        Pageable pageable = PageRequest.of(from, size);
         List<Event> eventList;
         List<Event> sortList = new ArrayList<>();
 
@@ -228,6 +214,10 @@ public class EventServiceImpl implements EventService {
                                 (query, categoryIds, State.PUBLISHED, startEvens,
                                         endEvens, pageable);
             }
+        }
+
+        if (sort != null && sort.equals("EVENT_DATE")) {
+            eventList = eventList.stream().sorted(Comparator.comparing(Event::getEventDate)).collect(Collectors.toList());
         }
 
         if ((Boolean) pais != null) {
@@ -265,31 +255,12 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventShortDtoList(eventList);
     }
 
-    private boolean checkEvent(Optional<Event> optionalEvent) {
-        Event oldEvent;
-        boolean check = false;
-        if (!optionalEvent.isPresent()) {
-            throw new NotFoundException("Event with userId not found");
-        }
-
-        if (optionalEvent.get().getState().equals(State.CANCELED)
-                || optionalEvent.get().getState().equals(State.PENDING)) {
-            oldEvent = optionalEvent.get();
-            if (oldEvent.getEventDate().isAfter(LocalDateTime.now().plusHours(1))) {
-                check = true;
-            }
-        }
-        return check;
-    }
-
     private void updateFields(String stateAction, Event oldEvent, Event event) {
         Category newCategory;
 
         if (stateAction != null) {
             if (stateAction.equals("CANCEL_REVIEW")) oldEvent.setState(State.CANCELED);
             if (stateAction.equals("PUBLISH_EVENT")) oldEvent.setState(State.PUBLISHED);
-            if (stateAction.equals("SEND_TO_REVIEW")) oldEvent.setState(State.PENDING);
-            if (stateAction.equals("REJECT_EVENT")) oldEvent.setState(State.CANCELED);
         }
 
         if (!oldEvent.getState().equals(State.CANCELED)) {

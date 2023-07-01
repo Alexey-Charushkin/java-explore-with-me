@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.main.event.dao.EventRepository;
 import ru.practicum.main.event.dto.State;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.request.dao.RequestRepository;
@@ -49,10 +48,10 @@ public class RequestServiceImpl implements RequestService {
         if (oldEventRequest != null) {
             throw new ConflictException("This request found");
         }
-        if (event.getState().equals(State.PENDING) || event.getState().equals(State.CANCELED)) {
+        if (!event.getState().equals(State.PUBLISHED)) {
             throw new ConflictException("Event is not published");
         }
-        if (event.getInitiator().getId() == userId) {
+        if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Initiator of event dont add event request");
         }
         if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
@@ -67,15 +66,11 @@ public class RequestServiceImpl implements RequestService {
 
         if (!event.isRequestModeration()) {
             if (event.getParticipantLimit() == 0) {
-//                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-//                eventRepository.save(event);
+                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                eventRepository.save(event);
                 request.setStatus(EventRequestStatus.CONFIRMED);
             } else {
                 request.setStatus(EventRequestStatus.PENDING);
-            }
-            if (event.getConfirmedRequests() < event.getParticipantLimit()) {
-                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                eventRepository.save(event);
             }
         }
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
@@ -111,7 +106,15 @@ public class RequestServiceImpl implements RequestService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
 
-        List<EventRequest> eventRequestList = requestRepository.findByIdIn((updateRequest.getRequestIds()));
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new NotFoundException("User is no initiator this event");
+        }
+
+//        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
+//            throw new ConflictException("Confirmation is not required");
+//        }
+
+        List<EventRequest> eventRequestList = requestRepository.findByIdIn((updateRequest.getRequestIds())); // получили список запросов
         List<EventRequest> confirmedRequests = new ArrayList<>();
         List<EventRequest> rejectedRequests = new ArrayList<>();
         EventRequestStatusUpdateResult updateResult = new EventRequestStatusUpdateResult();
@@ -119,8 +122,7 @@ public class RequestServiceImpl implements RequestService {
         if (updateRequest.getStatus().equals(EventRequestStatus.REJECTED)) {
             for (EventRequest eventRequest : eventRequestList) {
 
-                if (eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)
-                        && updateRequest.getStatus().equals(EventRequestStatus.REJECTED)) {
+                if (eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)) {
                     throw new ConflictException("Status is already confirmed");
                 }
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
@@ -133,23 +135,24 @@ public class RequestServiceImpl implements RequestService {
             updateResult.setConfirmedRequests(RequestMapper.toParticipationRequestDtoList(confirmedRequests));
             return updateResult;
         }
+
         for (EventRequest eventRequest : eventRequestList) {
 
             if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
 
                 if (eventRequest.getStatus().equals(EventRequestStatus.PENDING)) {
-                    if (!eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)) {
+                  //  if (!eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)) {
                         eventRequest.setStatus(EventRequestStatus.CONFIRMED);
                         confirmedRequests.add(eventRequest);
                         event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                        eventRepository.save(event);
-                    }
+                  //  }
                 }
             } else {
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
                 rejectedRequests.add(eventRequest);
             }
         }
+        eventRepository.save(event);
         updateResult.setConfirmedRequests(RequestMapper.toParticipationRequestDtoList(confirmedRequests));
         updateResult.setRejectedRequests(RequestMapper.toParticipationRequestDtoList(rejectedRequests));
 
