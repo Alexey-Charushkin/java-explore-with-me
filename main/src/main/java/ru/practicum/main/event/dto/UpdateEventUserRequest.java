@@ -22,7 +22,7 @@ public class UpdateEventUserRequest {
     private Location location;
     private boolean paid;
     private Integer participantLimit;
-    private boolean requestModeration;
+    private String requestModeration;
     private String stateAction;
     @Size(min = 3, max = 120)
     private String title;
@@ -31,7 +31,7 @@ public class UpdateEventUserRequest {
         return paid;
     }
 
-    public boolean isRequestModeration() {
-        return requestModeration;
-    }
+    //public boolean isRequestModeration() {
+//        return requestModeration;
+//    }
 }

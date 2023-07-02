@@ -79,13 +79,15 @@ public class EventServiceImpl implements EventService {
         }
 
         Event eventToSave = optionalEvent.get();
+
+        if (eventToSave.getState().equals(State.PUBLISHED)) {
+            throw new ConflictException("Event already published");
+        }
+        if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
+            throw new BadRequestException("User is not initiator");
+        }
+
         if (stateAction != null) {
-            if (!optionalEvent.get().getInitiator().getId().equals(userId)) {
-                throw new BadRequestException("User is not initiator");
-            }
-            if (eventToSave.getState().equals(State.PUBLISHED)) {
-                throw new ConflictException("Event already published");
-            }
             if (eventToSave.getState().equals(State.CANCELED) && stateAction.equals("SEND_TO_REVIEW")) {
                 eventToSave.setState(State.PENDING);
                 eventRepository.save(eventToSave);
@@ -151,8 +153,8 @@ public class EventServiceImpl implements EventService {
                             userIds, states, categoryIds, startEvens, endEvens, page);
         } else {
             if (userIds != null) {
-                events = eventRepository.findAllByCategoryIdInAndStateInAndEventDateIsAfter
-                        (categoryIds, states, LocalDateTime.now(), page);
+                events = eventRepository.findAllByCategoryIdInAndEventDateIsAfter
+                        (categoryIds, LocalDateTime.now(), page);
                 return EventMapper.toEventFullDtoList(events);
             }
             if (categoryIds != null) {
@@ -220,21 +222,21 @@ public class EventServiceImpl implements EventService {
             eventList = eventList.stream().sorted(Comparator.comparing(Event::getEventDate)).collect(Collectors.toList());
         }
 
-        if (pais) {
-            for (Event event : eventList) {
-                if (event.isPaid()) {
-                    sortList.add(event);
-                }
-            }
-        } else {
-            for (Event event : eventList) {
-                if (!event.isPaid()) {
-                    sortList.add(event);
-                }
-            }
-        }
-        eventList.clear();
-        eventList.addAll(sortList);
+//        if (pais) {
+//            for (Event event : eventList) {
+//                if (event.isPaid()) {
+//                    sortList.add(event);
+//                }
+//            }
+//        } else {
+//            for (Event event : eventList) {
+//                if (!event.isPaid()) {
+//                    sortList.add(event);
+//                }
+//            }
+//        }
+//        eventList.clear();
+//        eventList.addAll(sortList);
 
         if (onlyAvailable) {
             for (Event event : eventList) {
@@ -277,11 +279,11 @@ public class EventServiceImpl implements EventService {
                 oldEvent.setLocation(event.getLocation());
             }
 
-            oldEvent.setPaid(event.isPaid());
+     //       oldEvent.setPaid(event.isPaid());
 
             if (event.getParticipantLimit() != null) oldEvent.setParticipantLimit(event.getParticipantLimit());
 
-            oldEvent.setRequestModeration(event.isRequestModeration());
+   //         if (event.isRequestModeration() == null) oldEvent.setRequestModeration(event.isRequestModeration());
 
             if (event.getParticipantLimit() != null) oldEvent.setParticipantLimit(event.getParticipantLimit());
 

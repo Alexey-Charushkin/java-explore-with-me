@@ -24,7 +24,8 @@ public class EventMapper {
                 newEventDto.getLocation(),
                 Boolean.parseBoolean(newEventDto.getPaid()),
                 newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit(),
-                newEventDto.getRequestModeration() == null ? true : Boolean.parseBoolean(newEventDto.getRequestModeration()),
+                newEventDto.getRequestModeration() == null ? "true" : newEventDto.getRequestModeration(),
+                //  newEventDto.getRequestModeration() == null ? true : Boolean.parseBoolean(newEventDto.getRequestModeration()),
                 newEventDto.getTitle()
         );
     }
@@ -37,7 +38,8 @@ public class EventMapper {
                 updateEventUserRequest.getLocation(),
                 updateEventUserRequest.isPaid(),
                 updateEventUserRequest.getParticipantLimit(),
-                updateEventUserRequest.isRequestModeration(),
+               // updateEventUserRequest.isRequestModeration(),
+                updateEventUserRequest.getRequestModeration(),
                 updateEventUserRequest.getTitle()
         );
     }
@@ -50,7 +52,8 @@ public class EventMapper {
                 updateEventAdminRequest.getLocation(),
                 updateEventAdminRequest.isPaid(),
                 updateEventAdminRequest.getParticipantLimit(),
-                updateEventAdminRequest.isRequestModeration(),
+              //  updateEventAdminRequest.isRequestModeration(),
+                updateEventAdminRequest.getRequestModeration(),
                 updateEventAdminRequest.getTitle()
         );
     }

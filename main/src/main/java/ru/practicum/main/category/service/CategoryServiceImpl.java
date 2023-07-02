@@ -22,6 +22,8 @@ import ru.practicum.main.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 
+import static ru.practicum.main.request.model.EventRequestStatus.CONFIRMED;
+
 @Getter
 @Setter
 @Log4j2
@@ -44,15 +46,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto patch(Integer catId, NewCategoryDto newCategoryDto) {
-        Category category = findById(catId);
-        List<Category> categories = categoryRepository.findAll();
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Category not found"));
 
-        boolean isDuplicate = categories.stream()
-                .anyMatch(c -> c.getName().equals(newCategoryDto.getName()));
+            List<Category> categories = categoryRepository.findAll();
+            boolean isDuplicate = categories.stream()
+                    .anyMatch(c -> c.getId() != catId && c.getName().equals(newCategoryDto.getName()));
+            if (isDuplicate) {
+                throw new ConflictException("Category is duplicate");
+            }
 
-        if (isDuplicate) {
-            throw new ConflictException("Category is duplicate");
-        }
         category.setName(newCategoryDto.getName());
         return CategoryMapper.categoryToCategoryDto(category);
 
@@ -66,9 +69,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteById(Integer catId) {
-       Optional <List<Event>> events = Optional.of(eventRepository.findAllByCategoryId(catId));
-        if (events.isPresent()) {
-            throw new ConflictException("Not delete. Category contains events");
+       List<Event> events = eventRepository.findAllByCategoryId(catId);
+        if (events.size() != 0) {
+            boolean isConfirmedState = events.stream()
+                    .anyMatch(e -> e.getState().equals(CONFIRMED));
+            if (!isConfirmedState) {
+                throw new ConflictException("Not delete. Category contains events");
+            }
         }
         categoryRepository.delete(findById(catId));
     }

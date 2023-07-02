@@ -24,6 +24,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.practicum.main.request.model.EventRequestStatus.CONFIRMED;
+import static ru.practicum.main.request.model.EventRequestStatus.PENDING;
+
 @Getter
 @Setter
 @Log4j2
@@ -54,26 +57,39 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Initiator of event dont add event request");
         }
-        if (event.getConfirmedRequests() >= event.getParticipantLimit() && event.getParticipantLimit() != 0) {
-            throw new ConflictException("Participant limit is full");
+//        confirmRequest(event);
+        int confirmedRequests = requestRepository.findByEventIdAndAndStatus(eventId, CONFIRMED).size();
+        if (event.getParticipantLimit() != 0 && confirmedRequests == event.getParticipantLimit()) {
+            throw new ConflictException("Confirmed requests full");
         }
-
         EventRequest request = new EventRequest(
                 LocalDateTime.now(),
                 event,
                 user
         );
-
-        if (!event.isRequestModeration()) {
-            if (event.getParticipantLimit() == 0) {
-                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                eventRepository.save(event);
-                request.setStatus(EventRequestStatus.CONFIRMED);
-            } else {
-                request.setStatus(EventRequestStatus.PENDING);
-            }
+        request.setStatus(PENDING);
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
+            request.setStatus(CONFIRMED);
         }
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
+    }
+
+    private void confirmRequest(Event event) {
+        if (!event.isRequestModeration()) {
+            List<EventRequest> requests = requestRepository.findByEventId(event.getId());
+            for (EventRequest request : requests) {
+                if (request.getStatus().equals(PENDING)) {
+                    if (event.getConfirmedRequests() > event.getParticipantLimit()) {
+                        request.setStatus(CONFIRMED);
+                        requestRepository.save(request);
+                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                    } else {
+                        throw new ConflictException("Confirmed requests full");
+                    }
+                }
+            }
+            eventRepository.save(event);
+        }
     }
 
     @Override
@@ -89,6 +105,9 @@ public class RequestServiceImpl implements RequestService {
         if (eventRequest == null) {
             throw new NotFoundException("EventRequest not found");
         }
+        if (eventRequest.getEvent().isRequestModeration() && eventRequest.getStatus().equals(CONFIRMED)) {
+            throw new ConflictException("Status of event request is already confirmed");
+        }
         eventRequest.setStatus(EventRequestStatus.CANCELED);
         requestRepository.save(eventRequest);
         return RequestMapper.toParticipationRequestDto(eventRequest);
@@ -101,18 +120,16 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public EventRequestStatusUpdateResult patchRequestsByUserIdAndEventId(Integer userId, Integer eventId, EventRequestStatusUpdateRequest updateRequest) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found."));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event not found"));
-
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("User is no initiator this event");
         }
-
-//        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
-//            throw new ConflictException("Confirmation is not required");
-//        }
+        if (event.getConfirmedRequests() == event.getParticipantLimit()) {
+            throw new ConflictException("Confirmed requests full");
+        }
 
         List<EventRequest> eventRequestList = requestRepository.findByIdIn((updateRequest.getRequestIds())); // получили список запросов
         List<EventRequest> confirmedRequests = new ArrayList<>();
@@ -121,11 +138,11 @@ public class RequestServiceImpl implements RequestService {
 
         if (updateRequest.getStatus().equals(EventRequestStatus.REJECTED)) {
             for (EventRequest eventRequest : eventRequestList) {
-
-                if (eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)) {
-                    throw new ConflictException("Status is already confirmed");
-                }
+//                if (eventRequest.getStatus().equals(CONFIRMED)) {
+//                    throw new ConflictException("Status is already confirmed");
+//                }
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
+                //     event.setConfirmedRequests(event.getConfirmedRequests() - 1);
                 rejectedRequests.add(eventRequest);
             }
         }
@@ -138,17 +155,27 @@ public class RequestServiceImpl implements RequestService {
 
         for (EventRequest eventRequest : eventRequestList) {
 
+
             if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
 
-                if (eventRequest.getStatus().equals(EventRequestStatus.PENDING)) {
-                  //  if (!eventRequest.getStatus().equals(EventRequestStatus.CONFIRMED)) {
-                        eventRequest.setStatus(EventRequestStatus.CONFIRMED);
-                        confirmedRequests.add(eventRequest);
-                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                  //  }
+                if (eventRequest.getStatus().equals(CONFIRMED)) {
+                    confirmedRequests.add(eventRequest);
+                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                }
+
+                if (eventRequest.getStatus().equals(PENDING)) {
+
+                    eventRequest.setStatus(CONFIRMED);
+                    requestRepository.save(eventRequest);
+                    confirmedRequests.add(eventRequest);
+                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
                 }
             } else {
+                if (eventRequest.getStatus().equals(CONFIRMED)) {
+                    throw new ConflictException("Status is already confirmed");
+                }
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
+                requestRepository.save(eventRequest);
                 rejectedRequests.add(eventRequest);
             }
         }

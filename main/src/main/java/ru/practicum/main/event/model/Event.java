@@ -56,7 +56,7 @@ public class Event {
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
     @Column(name = "request_moderation")
-    private boolean requestModeration;
+    private Boolean requestModeration;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
@@ -70,14 +70,16 @@ public class Event {
 
 
     public Event(String annotation, String description, LocalDateTime parse, Location location,
-                 boolean paid, Integer participantLimit, boolean requestModeration, String title) {
+                 boolean paid, Integer participantLimit, String requestModeration, String title) {
         this.annotation = annotation;
         this.description = description;
         this.eventDate = parse;
         this.location = location;
         this.paid = paid;
         this.participantLimit = participantLimit;
-        this.requestModeration = requestModeration;
+        if (requestModeration != null) {
+            this.requestModeration = Boolean.parseBoolean(requestModeration);
+        }
         this.title = title;
     }
 
