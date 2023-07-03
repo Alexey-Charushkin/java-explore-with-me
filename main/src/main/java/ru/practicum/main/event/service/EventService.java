@@ -1,12 +1,14 @@
 package ru.practicum.main.event.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.main.event.dto.EventFullDto;
-import ru.practicum.main.event.dto.EventShortDto;
-import ru.practicum.main.event.dto.State;
-import ru.practicum.main.event.dto.UpdateEventUserRequest;
+import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.model.Event;
 
+import javax.annotation.processing.Generated;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,9 +20,9 @@ public interface EventService {
     EventFullDto findByUserIdAndEventId(Integer userId, Integer eventId);
 
     EventFullDto patchByUserIdAndEventId(Integer userId, Integer eventId, String stateAction,
-                                         Event eventUserRequest);
+                                         UpdateEvent updateEvent);
 
-    EventFullDto patchEvent(Integer eventId, String stateAction, Event event);
+    EventFullDto patchEvent(Integer eventId, String stateAction, UpdateEvent updateEvent);
 
     List<EventFullDto> findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
             Integer[] userIds, State[] states, Integer[] categoryIds, String start,

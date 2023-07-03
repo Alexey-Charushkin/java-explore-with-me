@@ -58,7 +58,7 @@ class EventPrivateController {
                                                 @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
         log.info("Patch /users/{userId}/events/{eventId}");
         return eventService.patchByUserIdAndEventId(userId, eventId,
-                updateEventUserRequest.getStateAction(), EventMapper.updateEventUserRequestToEvent(updateEventUserRequest));
+                updateEventUserRequest.getStateAction(), updateEventUserRequest);
     }
 
     @GetMapping("{userId}/events/{eventId}/requests")

@@ -13,9 +13,6 @@ import ru.practicum.main.event.service.EventService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -48,6 +45,6 @@ public class EventAdminController {
         log.info("Patch admin/events/{eventId}");
         return eventService.patchEvent(eventId,
                 updateEventAdminRequestRequest.getStateAction(),
-                EventMapper.updateEventAdminRequestToEvent(updateEventAdminRequestRequest));
+                updateEventAdminRequestRequest);
     }
 }

@@ -6,14 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main.locations.model.Location;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateEventAdminRequest {
+public class UpdateEventAdminRequest  implements UpdateEvent {
     @Size(min = 20, max = 2000)
     private String annotation;
     private Integer category;
@@ -21,17 +20,10 @@ public class UpdateEventAdminRequest {
     private String description;
     private String eventDate;
     private Location location;
-    private boolean paid;
+    private String paid;
     private Integer participantLimit;
     private String requestModeration;
     private String stateAction;
     @Size(min = 3, max = 120)
     private String title;
-    public boolean isPaid() {
-        return paid;
-    }
-
-   // public boolean isRequestModeration() {
-//        return requestModeration;
-//    }
 }

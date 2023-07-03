@@ -25,36 +25,7 @@ public class EventMapper {
                 Boolean.parseBoolean(newEventDto.getPaid()),
                 newEventDto.getParticipantLimit() == null ? 0 : newEventDto.getParticipantLimit(),
                 newEventDto.getRequestModeration() == null ? "true" : newEventDto.getRequestModeration(),
-                //  newEventDto.getRequestModeration() == null ? true : Boolean.parseBoolean(newEventDto.getRequestModeration()),
                 newEventDto.getTitle()
-        );
-    }
-
-    public Event updateEventUserRequestToEvent(UpdateEventUserRequest updateEventUserRequest) {
-        return new Event(
-                updateEventUserRequest.getAnnotation(),
-                updateEventUserRequest.getDescription(),
-                updateEventUserRequest.getEventDate() == null ? null : LocalDateTime.parse(updateEventUserRequest.getEventDate(), formatter),
-                updateEventUserRequest.getLocation(),
-                updateEventUserRequest.isPaid(),
-                updateEventUserRequest.getParticipantLimit(),
-               // updateEventUserRequest.isRequestModeration(),
-                updateEventUserRequest.getRequestModeration(),
-                updateEventUserRequest.getTitle()
-        );
-    }
-
-    public Event updateEventAdminRequestToEvent(UpdateEventAdminRequest updateEventAdminRequest) {
-        return new Event(
-                updateEventAdminRequest.getAnnotation(),
-                updateEventAdminRequest.getDescription(),
-                updateEventAdminRequest.getEventDate() == null ? null : LocalDateTime.parse(updateEventAdminRequest.getEventDate(), formatter),
-                updateEventAdminRequest.getLocation(),
-                updateEventAdminRequest.isPaid(),
-                updateEventAdminRequest.getParticipantLimit(),
-              //  updateEventAdminRequest.isRequestModeration(),
-                updateEventAdminRequest.getRequestModeration(),
-                updateEventAdminRequest.getTitle()
         );
     }
 

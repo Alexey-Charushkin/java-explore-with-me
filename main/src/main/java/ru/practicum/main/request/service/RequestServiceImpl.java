@@ -23,6 +23,7 @@ import ru.practicum.main.user.model.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static ru.practicum.main.request.model.EventRequestStatus.CONFIRMED;
 import static ru.practicum.main.request.model.EventRequestStatus.PENDING;
@@ -57,9 +58,8 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId().equals(userId)) {
             throw new ConflictException("Initiator of event dont add event request");
         }
-//        confirmRequest(event);
-        int confirmedRequests = requestRepository.findByEventIdAndAndStatus(eventId, CONFIRMED).size();
-        if (event.getParticipantLimit() != 0 && confirmedRequests == event.getParticipantLimit()) {
+
+        if (event.getParticipantLimit() != 0 && Objects.equals(event.getConfirmedRequests(), event.getParticipantLimit())) {
             throw new ConflictException("Confirmed requests full");
         }
         EventRequest request = new EventRequest(
@@ -70,26 +70,10 @@ public class RequestServiceImpl implements RequestService {
         request.setStatus(PENDING);
         if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(CONFIRMED);
-        }
-        return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
-    }
-
-    private void confirmRequest(Event event) {
-        if (!event.isRequestModeration()) {
-            List<EventRequest> requests = requestRepository.findByEventId(event.getId());
-            for (EventRequest request : requests) {
-                if (request.getStatus().equals(PENDING)) {
-                    if (event.getConfirmedRequests() > event.getParticipantLimit()) {
-                        request.setStatus(CONFIRMED);
-                        requestRepository.save(request);
-                        event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                    } else {
-                        throw new ConflictException("Confirmed requests full");
-                    }
-                }
-            }
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
             eventRepository.save(event);
         }
+        return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 
     @Override
@@ -127,7 +111,7 @@ public class RequestServiceImpl implements RequestService {
         if (!event.getInitiator().getId().equals(userId)) {
             throw new NotFoundException("User is no initiator this event");
         }
-        if (event.getConfirmedRequests() == event.getParticipantLimit()) {
+        if (event.getConfirmedRequests().equals(event.getParticipantLimit())) {
             throw new ConflictException("Confirmed requests full");
         }
 
@@ -138,11 +122,8 @@ public class RequestServiceImpl implements RequestService {
 
         if (updateRequest.getStatus().equals(EventRequestStatus.REJECTED)) {
             for (EventRequest eventRequest : eventRequestList) {
-//                if (eventRequest.getStatus().equals(CONFIRMED)) {
-//                    throw new ConflictException("Status is already confirmed");
-//                }
                 eventRequest.setStatus(EventRequestStatus.REJECTED);
-                //     event.setConfirmedRequests(event.getConfirmedRequests() - 1);
+                event.setConfirmedRequests(event.getConfirmedRequests() - 1);
                 rejectedRequests.add(eventRequest);
             }
         }
@@ -155,14 +136,7 @@ public class RequestServiceImpl implements RequestService {
 
         for (EventRequest eventRequest : eventRequestList) {
 
-
             if (event.getConfirmedRequests() <= event.getParticipantLimit()) {
-
-                if (eventRequest.getStatus().equals(CONFIRMED)) {
-                    confirmedRequests.add(eventRequest);
-                    event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-                }
-
                 if (eventRequest.getStatus().equals(PENDING)) {
 
                     eventRequest.setStatus(CONFIRMED);
