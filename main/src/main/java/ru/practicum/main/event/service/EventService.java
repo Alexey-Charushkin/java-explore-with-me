@@ -1,15 +1,8 @@
 package ru.practicum.main.event.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.data.domain.Pageable;
 import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.model.Event;
 
-import javax.annotation.processing.Generated;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {

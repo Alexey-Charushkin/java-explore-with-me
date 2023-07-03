@@ -7,10 +7,6 @@ import lombok.Setter;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.user.dto.UserShortDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor

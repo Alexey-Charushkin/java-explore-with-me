@@ -15,12 +15,10 @@ import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.event.dao.EventRepository;
 import ru.practicum.main.event.model.Event;
-import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 import static ru.practicum.main.request.model.EventRequestStatus.CONFIRMED;
 

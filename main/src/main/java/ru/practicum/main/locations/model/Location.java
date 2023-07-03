@@ -1,7 +1,6 @@
 package ru.practicum.main.locations.model;
 
 import lombok.*;
-import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
 

@@ -152,16 +152,13 @@ public class EventServiceImpl implements EventService {
                             userIds, states, categoryIds, startEvens, endEvens, page);
         } else {
             if (userIds != null) {
-                events = eventRepository.findAllByCategoryIdInAndEventDateIsAfter
-                        (categoryIds, LocalDateTime.now(), page);
+                events = eventRepository.findAllByCategoryIdInAndEventDateIsAfter(categoryIds, LocalDateTime.now(), page);
                 return EventMapper.toEventFullDtoList(events);
             }
             if (categoryIds != null) {
-                events = eventRepository.findAllByStateInAndEventDateIsAfter
-                        (states, LocalDateTime.now(), page);
+                events = eventRepository.findAllByStateInAndEventDateIsAfter(states, LocalDateTime.now(), page);
             } else {
-                events = eventRepository.findAllByEventDateIsAfter
-                        (LocalDateTime.now(), page);
+                events = eventRepository.findAllByEventDateIsAfter(LocalDateTime.now(), page);
             }
         }
         return EventMapper.toEventFullDtoList(events);
@@ -193,27 +190,25 @@ public class EventServiceImpl implements EventService {
                 throw new BadRequestException("Start before end");
             }
             eventList = eventRepository
-                    .searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore
-                            (query, categoryIds, State.PUBLISHED, startEvens,
-                                    endEvens, pageable);
+                    .searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore(
+                            query, categoryIds, State.PUBLISHED, startEvens, endEvens, pageable);
             if (eventList.size() == 0) {
                 eventList = eventRepository
-                        .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore
-                                (query, categoryIds, State.PUBLISHED, startEvens,
-                                        endEvens, pageable);
+                        .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfterAndEventDateIsBefore(
+                                query, categoryIds, State.PUBLISHED, startEvens, endEvens, pageable);
             }
         } else {
             if (query != null) {
-                eventList = eventRepository.searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfter
-                        (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+                eventList = eventRepository.searchAllByAnnotationAndCategoryIdInAndStateIsAndEventDateIsAfter(
+                        query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
                 if (eventList.size() == 0) {
                     eventList = eventRepository
-                            .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfter
-                                    (query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+                            .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfter(
+                                    query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
                 }
             } else {
-                eventList = eventRepository.findAllByCategoryIdInAndStateIsAndEventDateIsAfter
-                        (categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+                eventList = eventRepository.findAllByCategoryIdInAndStateIsAndEventDateIsAfter(
+                        categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
             }
         }
 
