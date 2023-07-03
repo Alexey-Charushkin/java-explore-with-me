@@ -3,6 +3,7 @@ package ru.practicum.main.event.service;
 import ru.practicum.main.event.dto.*;
 import ru.practicum.main.event.model.Event;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface EventService {
@@ -21,8 +22,9 @@ public interface EventService {
             Integer[] userIds, State[] states, Integer[] categoryIds, String start,
             String end, Integer from, Integer size);
 
-    EventFullDto findById(Integer eventId);
+    EventFullDto findById(Integer eventId, HttpServletRequest httpServletRequest);
 
     List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, String start,
-                                     String end, boolean onlyAvailable, String sort, Integer from, Integer size);
+                                     String end, boolean onlyAvailable, String sort, Integer from, Integer size,
+                                     HttpServletRequest httpServletRequest);
 }

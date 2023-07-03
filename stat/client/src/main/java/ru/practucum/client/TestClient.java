@@ -1,4 +1,4 @@
-package client;
+package ru.practucum.client;
 
 import dto.StatsDtoToGetStats;
 import dto.StatsDtoToReturn;

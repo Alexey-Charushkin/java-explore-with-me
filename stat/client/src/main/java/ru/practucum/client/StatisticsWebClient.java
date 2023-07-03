@@ -1,4 +1,4 @@
-package client;
+package ru.practucum.client;
 
 import dto.StatsDtoToGetStats;
 import dto.StatsDtoToReturn;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 @Log4j2
-class StatisticsWebClient {
+public class StatisticsWebClient {
     WebClient webClient = WebClient.create();
 
     public void saveHit(String uri, StatsDtoToSave statsDtoToSave) {

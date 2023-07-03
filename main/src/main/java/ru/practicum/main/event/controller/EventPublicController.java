@@ -8,6 +8,7 @@ import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -25,9 +26,9 @@ public class EventPublicController {
 
 
     @GetMapping("{eventId}")
-    public EventFullDto finById(@Positive @PathVariable Integer eventId) {
+    public EventFullDto finById(@Positive @PathVariable Integer eventId, HttpServletRequest httpServletRequest) {
         log.info("Get events/eventId}");
-        return eventService.findById(eventId);
+        return eventService.findById(eventId, httpServletRequest);
     }
 
     @GetMapping()
@@ -39,9 +40,10 @@ public class EventPublicController {
                                             @RequestParam(name = "onlyAvailable", required = false) boolean onlyAvailable,
                                             @RequestParam(name = "sort", required = false) String sort,
                                             @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
-                                            @RequestParam(name = "size",  defaultValue = "10") @Positive Integer size) {
+                                            @RequestParam(name = "size",  defaultValue = "10") @Positive Integer size,
+                                            HttpServletRequest httpServletRequest) {
         log.info("Get =search");
         return eventService.searchEvents(query, categoryIds, pais, start,
-                end, onlyAvailable, sort, from, size);
+                end, onlyAvailable, sort, from, size, httpServletRequest);
     }
 }

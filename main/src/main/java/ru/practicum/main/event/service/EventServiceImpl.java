@@ -1,5 +1,6 @@
 package ru.practicum.main.event.service;
 
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,9 @@ import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.locations.dao.LocationsRepository;
 import ru.practicum.main.user.service.UserService;
+import ru.practucum.client.StatisticsWebClient;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -36,6 +39,8 @@ public class EventServiceImpl implements EventService {
     private final CategoryService categoryService;
     private final EventRepository eventRepository;
     private final LocationsRepository locationsRepository;
+
+    private final StatisticsWebClient statisticsWebClient;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
@@ -165,7 +170,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto findById(Integer eventId) {
+    public EventFullDto findById(Integer eventId, HttpServletRequest request) {
         Event event = eventRepository.findByIdAndStateIs(eventId, State.PUBLISHED);
         if (event == null) {
             throw new NotFoundException("Event not found");
@@ -176,7 +181,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> searchEvents(String query, Integer[] categoryIds, boolean pais, String start,
                                             String end, boolean onlyAvailable, String sort, Integer from,
-                                            Integer size) {
+                                            Integer size, HttpServletRequest request) {
 
 
         Pageable pageable = PageRequest.of(from, size);
