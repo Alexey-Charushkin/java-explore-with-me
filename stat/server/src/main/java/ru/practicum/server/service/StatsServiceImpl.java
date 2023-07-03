@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.server.exception.BadRequestException;
 import ru.practicum.server.mapper.StatsMapper;
 import ru.practicum.server.model.Stats;
 import ru.practicum.server.dao.StatsRepository;
@@ -30,6 +31,9 @@ class StatsServiceImpl implements StatsService {
     public List<StatsDtoToReturn> get(LocalDateTime start, LocalDateTime end, String[] uris, boolean unique, int from,
                                       int size) {
 
+        if (end.isBefore(start)) {
+            throw new BadRequestException("Start before end");
+        }
         Pageable page = PageRequest.of(from, size);
         List<Stats> statsList;
 
@@ -48,24 +52,22 @@ class StatsServiceImpl implements StatsService {
     }
 
     private List<Stats> getHits(List<Stats> statsList, boolean unique) {
+        Stats oldStats;
         Map<String, Stats> statsMap = new HashMap<>();
         for (Stats stats : statsList) {
             if (!statsMap.containsKey(stats.getUri() + stats.getIp())) {
-                if (unique) {
-                    stats.setHits(1);
-                    statsMap.put(stats.getUri() + stats.getIp(), stats);
-                } else {
-                    stats.setHits(0);
-                    statsMap.put(stats.getUri() + stats.getIp(), stats);
-                }
+                stats.setHits(1);
+                statsMap.put(stats.getUri() + stats.getIp(), stats);
             } else {
-                Stats oldStats = statsMap.get(stats.getUri() + stats.getIp());
+                oldStats = statsMap.get(stats.getUri() + stats.getIp());
                 if (unique) {
                     if (!oldStats.getIp().equals(stats.getIp())) {
                         oldStats.setHits(oldStats.getHits() + 1);
+                        statsMap.put(stats.getUri() + stats.getIp(), oldStats);
                     }
                 } else {
                     oldStats.setHits(oldStats.getHits() + 1);
+                    statsMap.put(stats.getUri() + stats.getIp(), oldStats);
                 }
             }
         }

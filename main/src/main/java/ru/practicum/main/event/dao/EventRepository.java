@@ -42,6 +42,10 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     List<Event> findAllByEventDateIsAfter(LocalDateTime start, Pageable pageable);
 
+
+    List<Event> findAllByStateIsAndEventDateIsAfter(
+             State state, LocalDateTime start, Pageable pageable);
+
     List<Event> findAllByCategoryId(Integer categoryId);
 
 }

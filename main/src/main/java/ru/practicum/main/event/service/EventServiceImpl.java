@@ -1,6 +1,7 @@
 package ru.practicum.main.event.service;
 
 
+import dto.StatsDtoToSave;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -42,6 +43,8 @@ public class EventServiceImpl implements EventService {
 
     private final StatisticsWebClient statisticsWebClient;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    String baseUrl = "http://localhost:9090";
 
     @Override
     public EventFullDto create(Integer userId, Integer catId, Event event) {
@@ -175,6 +178,7 @@ public class EventServiceImpl implements EventService {
         if (event == null) {
             throw new NotFoundException("Event not found");
         }
+        statisticsWebClient.saveHit(baseUrl + "/hit", getStatsDtoToSave(request));
         return EventMapper.eventToEventFullDto(event);
     }
 
@@ -211,10 +215,15 @@ public class EventServiceImpl implements EventService {
                             .searchAllByDescriptionAndCategoryIdInAndStateIsAndEventDateIsAfter(
                                     query, categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
                 }
-            } else {
+            }
+            if (categoryIds != null) {
                 eventList = eventRepository.findAllByCategoryIdInAndStateIsAndEventDateIsAfter(
                         categoryIds, State.PUBLISHED, LocalDateTime.now(), pageable);
+            } else {
+                eventList = eventRepository.findAllByStateIsAndEventDateIsAfter(
+                        State.PUBLISHED, LocalDateTime.now(), pageable);
             }
+
         }
 
         if (sort != null && sort.equals("EVENT_DATE")) {
@@ -246,6 +255,7 @@ public class EventServiceImpl implements EventService {
             eventList.clear();
             eventList.addAll(sortList);
         }
+        statisticsWebClient.saveHit(baseUrl + "/hit", getStatsDtoToSave(request));
         return EventMapper.toEventShortDtoList(eventList);
     }
 
@@ -288,4 +298,14 @@ public class EventServiceImpl implements EventService {
             if (updateEvent.getTitle() != null) oldEvent.setTitle(updateEvent.getTitle());
         }
     }
+
+    private StatsDtoToSave getStatsDtoToSave(HttpServletRequest request) {
+        return new StatsDtoToSave(
+                "ewm-main",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now().format(formatter)
+        );
+    }
+
 }
