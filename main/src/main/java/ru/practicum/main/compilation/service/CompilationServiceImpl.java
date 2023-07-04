@@ -29,7 +29,6 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
 
     @Override
-    @Transactional
     public CompilationDto save(NewCompilationDto newCompilationDto) {
       //        if (newCompilationDto.getTitle() == null) {
 //            throw new InvalidParameterException("Поле Title должно быть заполнено.");

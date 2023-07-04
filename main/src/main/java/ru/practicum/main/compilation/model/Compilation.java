@@ -17,7 +17,7 @@ public class Compilation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToMany
-    @JoinTable(name = "compilation_events",
+    @JoinTable(name = "compilations_events",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
     private List<Event> events;

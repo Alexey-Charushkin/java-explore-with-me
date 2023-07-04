@@ -68,7 +68,6 @@ public class Event {
     private Integer views;
 
 
-
     public Event(String annotation, String description, LocalDateTime parse, Location location,
                  boolean paid, Integer participantLimit, String requestModeration, String title) {
         this.annotation = annotation;
@@ -83,7 +82,6 @@ public class Event {
         this.title = title;
     }
 
-
     public boolean isRequestModeration() {
         return requestModeration;
     }
@@ -91,25 +89,4 @@ public class Event {
     public boolean isPaid() {
         return paid;
     }
-//    public Event(String annotation, CategoryDto category, Integer confirmedRequests, String createdOn,
-//                 String description, LocalDateTime eventDate, Integer id, UserShortDto initiator, Location location,
-//                 boolean paid, Integer participantLimit, String publishedOn, boolean requestModeration,
-//                 Enum state, String title, Integer views) {
-//        this.annotation = annotation;
-//        this.category = category;
-//        this.confirmedRequests = confirmedRequests;
-//        this.createdOn = createdOn;
-//        this.description = description;
-//        this.eventDate = eventDate;
-//        this.id = id;
-//        this.initiator = initiator;
-//        this.location = location;
-//        this.paid = paid;
-//        this.participantLimit = participantLimit;
-//        this.publishedOn = publishedOn;
-//        this.requestModeration = requestModeration;
-//        this.state = state;
-//        this.title = title;
-//        this.views = views;
-    //   }
 }
