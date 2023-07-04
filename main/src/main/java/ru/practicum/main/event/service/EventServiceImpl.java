@@ -343,8 +343,7 @@ public class EventServiceImpl implements EventService {
         String eventUri = "/events/" + event.getId();
         StatsDtoToGetStats statsDtoToGetStats = getStatsDtoToGetStats(List.of(eventUri), true, null, null);
         List<StatsDtoToReturn> statsList = statisticsWebClient.getStatistics(baseUrl, statsDtoToGetStats);
-        Integer views = statsList.size() == 0 ? 0 : statsList.get(0).getHits();
-        return views;
+        return statsList.size() == 0 ? 0 : statsList.get(0).getHits();
     }
 
     List<Event> getEventViewsList(List<Event> events) {

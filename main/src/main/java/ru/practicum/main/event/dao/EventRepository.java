@@ -15,6 +15,8 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
 
     Event findByIdAndStateIs(Integer eventId, State state);
 
+    List<Event> findAllByIdIn(List<Integer> ids);
+
     List<Event> findEventsByInitiatorIdInAndStateInAndCategoryIdInAndEventDateIsAfterAndEventDateIsBefore(
             Integer[] initiatorIds, State[] states, Integer[] categoryIds,
             LocalDateTime start, LocalDateTime end, Pageable pageable);

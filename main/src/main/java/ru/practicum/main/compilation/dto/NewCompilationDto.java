@@ -16,10 +16,9 @@ import java.util.List;
 @AllArgsConstructor
 public class NewCompilationDto {
     private List<Integer> events;
-    private boolean pinned; // Закреплена ли подборка на главной странице сайта
+    private boolean pinned;
     @NotNull
     @NotBlank
     @Size(min = 1, max = 50)
     private String title;
-
 }
