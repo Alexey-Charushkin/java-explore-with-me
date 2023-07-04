@@ -30,4 +30,11 @@ public class CompilationMapper {
                 compilation.getPinned(),
                 compilation.getTitle());
     }
+
+    public List<CompilationDto> compilationDtoList(List<Compilation> compilations) {
+        return compilations.stream()
+                .map(CompilationMapper::toCompilationDto)
+                .collect(Collectors.toList());
+    }
+
 }

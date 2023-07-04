@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.main.compilation.controller.Create;
+import ru.practicum.main.compilation.controller.Update;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -17,8 +19,8 @@ import java.util.List;
 public class NewCompilationDto {
     private List<Integer> events;
     private boolean pinned;
-    @NotNull
-    @NotBlank
+    @NotNull(groups = {Create.class})
+    @NotBlank(groups = {Create.class})
     @Size(min = 1, max = 50)
     private String title;
 }

@@ -2,15 +2,14 @@ package ru.practicum.main.compilation.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.compilation.dto.CompilationDto;
 import ru.practicum.main.compilation.dto.NewCompilationDto;
 import ru.practicum.main.compilation.service.CompilationService;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.validation.Valid;
+import ru.practicum.main.exception.BadRequestException;
 
 @Log4j2
 @RestController
@@ -23,23 +22,28 @@ public class CompilationAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto addCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
-        log.info("Post /admin/compilations");
-        return compilationService.save(newCompilationDto);
+    public CompilationDto save(@Validated({Create.class}) @RequestBody NewCompilationDto newCompilationDto) {
+        try {
+            log.info("Post /admin/compilations");
+            return compilationService.save(newCompilationDto);
+        } catch (InvalidDataAccessApiUsageException e) {
+            throw new BadRequestException("NewCompilationDto validate exception");
+        }
+
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable Integer id) {
+    public void deleteCompilation(@PathVariable Integer compId) {
         log.info("Delete /admin/compilations/{id}");
-        compilationService.deleteCompilation(id);
+        compilationService.deleteCompilation(compId);
     }
 
-    @PatchMapping("/{id}")
-    public CompilationDto update(@PathVariable Integer id,
-                                 @Valid @RequestBody NewCompilationDto newCompilationDto) {
+    @PatchMapping("/{compId}")
+    public CompilationDto update(@PathVariable Integer compId,
+                                 @Validated(Update.class) @RequestBody NewCompilationDto newCompilationDto) {
         log.info("Patch /admin/compilations");
-        return compilationService.updateCompilation(id, newCompilationDto);
+        return compilationService.updateCompilation(compId, newCompilationDto);
     }
 
 }

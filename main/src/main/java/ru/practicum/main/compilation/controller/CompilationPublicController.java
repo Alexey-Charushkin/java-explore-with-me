@@ -22,7 +22,7 @@ public class CompilationPublicController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public List<CompilationDto> findAll(@RequestParam(required = false) Boolean pinned,
+    public List<CompilationDto> findAll(@RequestParam(defaultValue = "false") Boolean pinned,
                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                         @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("Get compilations/?pinned= &from= &size= ");
@@ -35,6 +35,5 @@ public class CompilationPublicController {
         log.info("Get compilations/{compId}", compId);
         return compilationService.findById(compId);
     }
-
 
 }
