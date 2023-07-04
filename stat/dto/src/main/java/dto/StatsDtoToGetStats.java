@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,7 +14,7 @@ import lombok.Setter;
 public class StatsDtoToGetStats {
     String start;
     String end;
-    String[] uris;
+    List<String> uris;
     boolean unique;
     Integer from;
     Integer size;

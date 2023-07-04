@@ -21,7 +21,7 @@ class TestClient {
         client.saveHit(baseUrl + "/hit", statsDtoToSave);
 
         StatsDtoToGetStats stats = new StatsDtoToGetStats("2020-05-05 00:00:00", "2035-05-05 00:00:00",
-                urisParam, true, null, null);
+                List.of(urisParam), true, null, null);
 
         List<StatsDtoToReturn> statistics = client.getStatistics(baseUrl, stats);
         System.out.println();

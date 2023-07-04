@@ -1,6 +1,8 @@
 package ru.practicum.main.event.service;
 
 
+import dto.StatsDtoToGetStats;
+import dto.StatsDtoToReturn;
 import dto.StatsDtoToSave;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.locations.dao.LocationsRepository;
+import ru.practicum.main.request.dao.RequestRepository;
 import ru.practicum.main.user.service.UserService;
 import ru.practucum.client.StatisticsWebClient;
 
@@ -28,6 +31,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Getter
 @Setter
@@ -40,7 +45,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryService categoryService;
     private final EventRepository eventRepository;
     private final LocationsRepository locationsRepository;
-
+    private final RequestRepository requestRepository;
     private final StatisticsWebClient statisticsWebClient;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -66,13 +71,18 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> findById(Integer userId, Integer from, Integer size) {
         Pageable page = PageRequest.of(from, size);
-        return EventMapper.toEventShortDtoList(eventRepository.findByInitiatorId(userId, page));
+        List<Event> events = eventRepository.findByInitiatorId(userId, page);
+        List<Event> eventsWithViews = getEventViewsList(events);
+        return EventMapper.toEventShortDtoList(eventsWithViews);
     }
 
     @Override
     public EventFullDto findByUserIdAndEventId(Integer userId, Integer eventId) {
-        Optional<Event> event = Optional.of(eventRepository.findByIdAndInitiatorId(eventId, userId));
-        return EventMapper.eventToEventFullDto(event.get());
+        Optional<Event> eventOptional = Optional.of(eventRepository.findByIdAndInitiatorId(eventId, userId));
+        Event event = eventOptional.get();
+        event.setViews(getViews(event));
+        return EventMapper.eventToEventFullDto(event);
+
 
     }
 
@@ -104,6 +114,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         updateFields(stateAction, eventToSave, updateEvent);
+
+        eventToSave.setViews(getViews(eventToSave));
         eventRepository.save(eventToSave);
         return EventMapper.eventToEventFullDto(eventToSave);
     }
@@ -142,6 +154,8 @@ public class EventServiceImpl implements EventService {
             }
         }
         updateFields(stateAction, eventToSave, updateEvent);
+
+        eventToSave.setViews(getViews(eventToSave));
         eventRepository.save(eventToSave);
         return EventMapper.eventToEventFullDto(eventToSave);
     }
@@ -169,7 +183,9 @@ public class EventServiceImpl implements EventService {
                 events = eventRepository.findAllByEventDateIsAfter(LocalDateTime.now(), page);
             }
         }
-        return EventMapper.toEventFullDtoList(events);
+
+        List<Event> eventsWithViews = getEventViewsList(events);
+        return EventMapper.toEventFullDtoList(eventsWithViews);
     }
 
     @Override
@@ -178,6 +194,8 @@ public class EventServiceImpl implements EventService {
         if (event == null) {
             throw new NotFoundException("Event not found");
         }
+
+        event.setViews(getViews(event));
         statisticsWebClient.saveHit(baseUrl + "/hit", getStatsDtoToSave(request));
         return EventMapper.eventToEventFullDto(event);
     }
@@ -255,8 +273,10 @@ public class EventServiceImpl implements EventService {
             eventList.clear();
             eventList.addAll(sortList);
         }
+
+        List<Event> eventsWithViews = getEventViewsList(eventList);
         statisticsWebClient.saveHit(baseUrl + "/hit", getStatsDtoToSave(request));
-        return EventMapper.toEventShortDtoList(eventList);
+        return EventMapper.toEventShortDtoList(eventsWithViews);
     }
 
     private void updateFields(String stateAction, Event oldEvent, UpdateEvent updateEvent) {
@@ -308,4 +328,58 @@ public class EventServiceImpl implements EventService {
         );
     }
 
+    private StatsDtoToGetStats getStatsDtoToGetStats(List<String> uris, boolean unique, Integer from, Integer size) {
+        return new StatsDtoToGetStats(
+                "2020-05-05 00:00:00",
+                "2025-01-01 00:00:00",
+                uris,
+                unique,
+                from == null ? 0 : from,
+                size == null ? 10 : size
+        );
+    }
+
+    private Integer getViews(Event event) {
+        String eventUri = "/events/" + event.getId();
+        StatsDtoToGetStats statsDtoToGetStats = getStatsDtoToGetStats(List.of(eventUri), true, null, null);
+        List<StatsDtoToReturn> statsList = statisticsWebClient.getStatistics(baseUrl, statsDtoToGetStats);
+        Integer views = statsList.size() == 0 ? 0 : statsList.get(0).getHits();
+        return views;
+    }
+
+    List<Event> getEventViewsList(List<Event> events) {
+        String eventUri = "/events/";
+        List<String> uriEventList = events.stream()
+                .map(e -> eventUri + e.getId().toString())
+                .collect(toList());
+        StatsDtoToGetStats statsDtoToGetStats = getStatsDtoToGetStats(uriEventList, true, null, null);
+        List<StatsDtoToReturn> statsList = statisticsWebClient.getStatistics(baseUrl, statsDtoToGetStats);
+
+        Map<Integer, Integer> eventViewsMap = getEventHitsMap(statsList, events);
+
+        List<Event> eventWithViews = new ArrayList<>();
+
+        for (Event event: events) {
+            if (eventViewsMap.containsKey(event.getId())) {
+                event.setViews(eventViewsMap.get(event.getId()));
+                eventWithViews.add(event);
+            }
+        }
+
+        return eventWithViews;
+    }
+
+    private Map<Integer, Integer> getEventHitsMap(List<StatsDtoToReturn> hitDtoList, List<Event> events) {
+        Map<Integer, Integer> hits = new HashMap<>();
+        if (hitDtoList.size() == 0) {
+            for (Event event : events) {
+                hits.put(event.getId(), 0);
+            }
+            return hits;
+        }
+        for (StatsDtoToReturn viewStatsDto : hitDtoList) {
+            hits.put(Integer.parseInt(viewStatsDto.getUri().replace("/events/", "")), viewStatsDto.getHits());
+        }
+        return hits;
+    }
 }
