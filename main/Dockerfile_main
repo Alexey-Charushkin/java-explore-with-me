@@ -1,4 +1,4 @@
 FROM amazoncorretto:11
 WORKDIR /ewm
 COPY target/*.jar /main/main.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java","-jar","/main/main.jar"]
