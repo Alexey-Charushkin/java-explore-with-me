@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import ru.practucum.client.StatisticsWebClient;
 
+
 @Configuration
 @EnableJpaRepositories(basePackages = "ru.practicum.main")
 class PersistenceJPAConfig {

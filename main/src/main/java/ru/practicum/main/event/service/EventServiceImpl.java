@@ -45,11 +45,10 @@ public class EventServiceImpl implements EventService {
     private final CategoryService categoryService;
     private final EventRepository eventRepository;
     private final LocationsRepository locationsRepository;
+
     private final RequestRepository requestRepository;
     private final StatisticsWebClient statisticsWebClient;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    String baseUrl = "http://localhost:9090";
 
     @Override
     public EventFullDto create(Integer userId, Integer catId, Event event) {
@@ -196,7 +195,7 @@ public class EventServiceImpl implements EventService {
         }
 
         event.setViews(getViews(event));
-        statisticsWebClient.saveHit(baseUrl + "/hit", getStatsDtoToSave(request));
+        statisticsWebClient.saveHit("/hit", getStatsDtoToSave(request));
         return EventMapper.eventToEventFullDto(event);
     }
 
@@ -262,7 +261,7 @@ public class EventServiceImpl implements EventService {
         eventList.clear();
         eventList.addAll(sortList);
         List<Event> eventsWithViews = getEventViewsList(eventList);
-        statisticsWebClient.saveHit(baseUrl + "/hit", getStatsDtoToSave(request));
+        statisticsWebClient.saveHit("/hit", getStatsDtoToSave(request));
         return EventMapper.toEventShortDtoList(eventsWithViews);
     }
 
@@ -329,7 +328,7 @@ public class EventServiceImpl implements EventService {
     private Integer getViews(Event event) {
         String eventUri = "/events/" + event.getId();
         StatsDtoToGetStats statsDtoToGetStats = getStatsDtoToGetStats(List.of(eventUri), true, null, null);
-        List<StatsDtoToReturn> statsList = statisticsWebClient.getStatistics(baseUrl, statsDtoToGetStats);
+        List<StatsDtoToReturn> statsList = statisticsWebClient.getStatistics(statsDtoToGetStats);
         return statsList.size() == 0 ? 0 : statsList.get(0).getHits();
     }
 
@@ -339,7 +338,7 @@ public class EventServiceImpl implements EventService {
                 .map(e -> eventUri + e.getId().toString())
                 .collect(toList());
         StatsDtoToGetStats statsDtoToGetStats = getStatsDtoToGetStats(uriEventList, true, null, null);
-        List<StatsDtoToReturn> statsList = statisticsWebClient.getStatistics(baseUrl, statsDtoToGetStats);
+        List<StatsDtoToReturn> statsList = statisticsWebClient.getStatistics(statsDtoToGetStats);
 
         Map<Integer, Integer> eventViewsMap = getEventHitsMap(statsList, events);
 
