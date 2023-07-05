@@ -14,13 +14,13 @@ import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.event.dao.EventRepository;
+import ru.practicum.main.event.dto.State;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.exception.NotFoundException;
 
 import java.util.List;
 
-import static ru.practicum.main.request.model.EventRequestStatus.CONFIRMED;
 
 @Getter
 @Setter
@@ -70,7 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
        List<Event> events = eventRepository.findAllByCategoryId(catId);
         if (events.size() != 0) {
             boolean isConfirmedState = events.stream()
-                    .anyMatch(e -> e.getState().equals(CONFIRMED));
+                    .anyMatch(e -> e.getState().equals(State.PUBLISHED));
             if (!isConfirmedState) {
                 throw new ConflictException("Not delete. Category contains events");
             }
