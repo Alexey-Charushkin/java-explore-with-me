@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 @Log4j2
 public class StatisticsWebClient {
+
     WebClient webClient = WebClient.create();
     String uri = "http://stats-server:9090";
 
