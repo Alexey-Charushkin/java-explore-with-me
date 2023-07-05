@@ -16,7 +16,7 @@ public class CompilationMapper {
 
     public Compilation toCompilation(NewCompilationDto newCompilationDto, List<Event> events) {
         return new Compilation(null,
-                events ,
+                events,
                 newCompilationDto.isPinned(),
                 newCompilationDto.getTitle());
     }

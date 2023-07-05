@@ -24,7 +24,6 @@ public class EventPublicController {
     private final EventService eventService;
 
 
-
     @GetMapping("{eventId}")
     public EventFullDto finById(@Positive @PathVariable Integer eventId, HttpServletRequest httpServletRequest) {
         log.info("Get events/eventId}");
@@ -40,10 +39,11 @@ public class EventPublicController {
                                             @RequestParam(name = "onlyAvailable", required = false) boolean onlyAvailable,
                                             @RequestParam(name = "sort", required = false) String sort,
                                             @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
-                                            @RequestParam(name = "size",  defaultValue = "10") @Positive Integer size,
+                                            @RequestParam(name = "size", defaultValue = "10") @Positive Integer size,
                                             HttpServletRequest httpServletRequest) {
         log.info("Get =search");
         return eventService.searchEvents(query, categoryIds, pais, start,
                 end, onlyAvailable, sort, from, size, httpServletRequest);
     }
+
 }

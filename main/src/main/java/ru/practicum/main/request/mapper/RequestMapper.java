@@ -28,5 +28,4 @@ public class RequestMapper {
                 .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
-
 }

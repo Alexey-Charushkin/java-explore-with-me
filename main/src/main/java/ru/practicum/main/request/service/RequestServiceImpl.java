@@ -34,11 +34,9 @@ import static ru.practicum.main.request.model.EventRequestStatus.PENDING;
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
-
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-
 
     @Override
     public ParticipationRequestDto save(Integer userId, Integer eventId) {

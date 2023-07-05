@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "requests", schema = "public")
 public class EventRequest {
-
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
     @ManyToOne
@@ -39,10 +38,4 @@ public class EventRequest {
         this.event = event;
         this.requester = user;
     }
-
-//    public EventRequest(LocalDateTime created, Event event, User user) {
-//        this.created = created;
-//        this.event = event;
-//        this.requester = user;
-//    }
 }

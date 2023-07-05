@@ -17,14 +17,12 @@ import javax.validation.constraints.PositiveOrZero;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-
 @Log4j2
 @RestController
 @Validated
 @RequiredArgsConstructor
 @RequestMapping("admin/users")
 public class UserAdminController {
-
     private final UserService userService;
 
     @PostMapping

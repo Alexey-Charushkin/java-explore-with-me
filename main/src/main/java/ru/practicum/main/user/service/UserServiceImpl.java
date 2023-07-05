@@ -40,9 +40,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Integer userId) {
-        User user = userRepository.findById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
-        return user;
     }
 
     @Override

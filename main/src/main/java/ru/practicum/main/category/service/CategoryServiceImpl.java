@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
 
             List<Category> categories = categoryRepository.findAll();
             boolean isDuplicate = categories.stream()
-                    .anyMatch(c -> c.getId() != catId && c.getName().equals(newCategoryDto.getName()));
+                    .anyMatch(c -> !c.getId().equals(catId) && c.getName().equals(newCategoryDto.getName()));
             if (isDuplicate) {
                 throw new ConflictException("Category is duplicate");
             }
@@ -80,8 +80,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category findById(Integer catId) {
-        Category category = categoryRepository.findById(catId)
+        return categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category with id " + catId + " was not found"));
-        return category;
     }
 }

@@ -41,7 +41,7 @@ public class CategoryAdminController {
 
     @DeleteMapping("{catId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@Positive @PathVariable("catId") Integer catId) throws EntityNotFoundException, InvalidParameterException {
+    public void delete(@Positive @PathVariable("catId") Integer catId) {
         log.info("delete admin/categories/catId");
         categoryService.deleteById(catId);
     }

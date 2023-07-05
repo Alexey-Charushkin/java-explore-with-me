@@ -14,13 +14,13 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class ParticipationRequestDto {
     @NotBlank
-    private String created; // example: 2022-09-06T21:10:05.432 Дата и время создания заявки
+    private String created;
     @NotNull
-    private Integer event; // Идентификатор события
+    private Integer event;
     @NotNull
-    private Integer id; // Идентификатор заявки
+    private Integer id;
     @NotNull
-    private Integer requester; // Идентификатор пользователя, отправившего заявку
+    private Integer requester;
     @NotBlank
-    private String status; // example: PENDING Статус заявки
+    private String status;
 }

@@ -11,8 +11,6 @@ import ru.practicum.main.compilation.dto.NewCompilationDto;
 import ru.practicum.main.compilation.service.CompilationService;
 import ru.practicum.main.exception.BadRequestException;
 
-import javax.validation.Valid;
-
 @Log4j2
 @RestController
 @Validated

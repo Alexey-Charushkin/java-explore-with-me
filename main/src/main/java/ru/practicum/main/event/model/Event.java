@@ -17,14 +17,13 @@ import java.time.LocalDateTime;
 @Table(name = "events", schema = "public")
 public class Event {
     @Column(name = "annotation", nullable = false)
-    private String annotation;  // Краткое описание
-
+    private String annotation;
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @Column(name = "confirmed_requests")
-    private Integer confirmedRequests;  // Количество одобренных заявок на участие в данном событии
+    private Integer confirmedRequests;
 
     @Column(name = "created_on")
     private LocalDateTime createdOn;

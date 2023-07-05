@@ -47,5 +47,4 @@ public class RequestPrivateController {
         log.info("Patch /users/{userId}/requests/{eventId}");
         return requestService.cancelEventRequest(userId, requestId);
     }
-
 }

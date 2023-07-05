@@ -18,5 +18,4 @@ public interface CompilationService {
 
     List<CompilationDto> findAll(boolean pinned, Pageable pageable);
 
-
 }

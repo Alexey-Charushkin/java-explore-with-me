@@ -24,9 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 class EventPrivateController {
-
     private final EventService eventService;
-
     private final RequestService requestService;
 
     @PostMapping("{userId}/events")
@@ -72,10 +70,9 @@ class EventPrivateController {
     public EventRequestStatusUpdateResult patchByUserIdAndEventId(@Positive @PathVariable Integer userId,
                                                                   @Positive @PathVariable Integer eventId,
                                                                   @Valid @RequestBody EventRequestStatusUpdateRequest
-                                                                         updateRequest) {
+                                                                          updateRequest) {
         log.info("Patch user/{userId}/events/{eventId}/requests");
         return requestService.patchRequestsByUserIdAndEventId(userId, eventId, updateRequest);
     }
-
 
 }

@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateEventAdminRequest  implements UpdateEvent {
+public class UpdateEventAdminRequest implements UpdateEvent {
     @Size(min = 20, max = 2000)
     private String annotation;
     private Integer category;
