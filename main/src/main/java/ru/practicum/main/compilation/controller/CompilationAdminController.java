@@ -11,6 +11,8 @@ import ru.practicum.main.compilation.dto.NewCompilationDto;
 import ru.practicum.main.compilation.service.CompilationService;
 import ru.practicum.main.exception.BadRequestException;
 
+import javax.validation.Valid;
+
 @Log4j2
 @RestController
 @Validated
@@ -22,14 +24,13 @@ public class CompilationAdminController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto save(@Validated({Create.class}) @RequestBody NewCompilationDto newCompilationDto) {
+    public CompilationDto save(@Validated(Create.class) @RequestBody NewCompilationDto newCompilationDto) {
         try {
             log.info("Post /admin/compilations");
             return compilationService.save(newCompilationDto);
         } catch (InvalidDataAccessApiUsageException e) {
             throw new BadRequestException("NewCompilationDto validate exception");
         }
-
     }
 
     @DeleteMapping("/{compId}")

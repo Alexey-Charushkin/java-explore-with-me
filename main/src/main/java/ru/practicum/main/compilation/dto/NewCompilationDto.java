@@ -21,6 +21,6 @@ public class NewCompilationDto {
     private boolean pinned;
     @NotNull(groups = {Create.class})
     @NotBlank(groups = {Create.class})
-    @Size(min = 1, max = 50)
+    @Size(min = 1, max = 50, groups = {Create.class, Update.class})
     private String title;
 }
