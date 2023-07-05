@@ -18,7 +18,7 @@ public interface EventService {
 
     EventFullDto patchEvent(Integer eventId, String stateAction, UpdateEvent updateEvent);
 
-    List<EventFullDto> findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
+    List<EventFullDto> findEventsByAdminWithRequestParam(
             Integer[] userIds, State[] states, Integer[] categoryIds, String start,
             String end, Integer from, Integer size);
 

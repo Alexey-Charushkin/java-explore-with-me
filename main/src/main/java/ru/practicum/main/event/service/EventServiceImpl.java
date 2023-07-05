@@ -161,7 +161,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
+    public List<EventFullDto> findEventsByAdminWithRequestParam(
             Integer[] userIds, State[] states, Integer[] categoryIds, String start, String end,
             Integer from, Integer size) {
         Pageable page = PageRequest.of(from, size);
@@ -248,32 +248,19 @@ public class EventServiceImpl implements EventService {
             eventList = eventList.stream().sorted(Comparator.comparing(Event::getEventDate)).collect(Collectors.toList());
         }
 
-//        if (pais) {
-//            for (Event event : eventList) {
-//                if (event.isPaid()) {
-//                    sortList.add(event);
-//                }
-//            }
-//        } else {
-//            for (Event event : eventList) {
-//                if (!event.isPaid()) {
-//                    sortList.add(event);
-//                }
-//            }
-//        }
-//        eventList.clear();
-//        eventList.addAll(sortList);
-
-        if (onlyAvailable) {
-            for (Event event : eventList) {
-                if (event.getConfirmedRequests() < event.getParticipantLimit()) {
-                    sortList.add(event);
-                }
+        for (Event event : eventList) {
+            if (event.isPaid() && onlyAvailable) {
+                sortList.add(event);
+            } else if (!event.isPaid() && onlyAvailable) {
+                sortList.add(event);
+            } else if (event.isPaid() && !onlyAvailable) {
+                sortList.add(event);
+            } else if (!event.isPaid() && !onlyAvailable) {
+                sortList.add(event);
             }
-            eventList.clear();
-            eventList.addAll(sortList);
         }
-
+        eventList.clear();
+        eventList.addAll(sortList);
         List<Event> eventsWithViews = getEventViewsList(eventList);
         statisticsWebClient.saveHit(baseUrl + "/hit", getStatsDtoToSave(request));
         return EventMapper.toEventShortDtoList(eventsWithViews);
@@ -356,16 +343,15 @@ public class EventServiceImpl implements EventService {
 
         Map<Integer, Integer> eventViewsMap = getEventHitsMap(statsList, events);
 
-        List<Event> eventWithViews = new ArrayList<>();
-
-        for (Event event: events) {
+        for (int i = 0; i < events.size(); i++) {
+            Event event = events.get(i);
             if (eventViewsMap.containsKey(event.getId())) {
                 event.setViews(eventViewsMap.get(event.getId()));
-                eventWithViews.add(event);
+                events.remove(i);
+                events.add(event);
             }
         }
-
-        return eventWithViews;
+        return events;
     }
 
     private Map<Integer, Integer> getEventHitsMap(List<StatsDtoToReturn> hitDtoList, List<Event> events) {

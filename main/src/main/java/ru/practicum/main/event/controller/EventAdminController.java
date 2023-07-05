@@ -33,7 +33,7 @@ public class EventAdminController {
                                              @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                              @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get /admin/events?users= &states= &categories= &rangeStart= &rangeEnd=  &from= &size= ");
-        return eventService.findEventsByInitiatorIdsAndStatesAndCategoriesIsAfterStartIsBeforeEnd(
+        return eventService.findEventsByAdminWithRequestParam(
                 userIds, states, categoryIds, start,
                 end, from, size);
     }
