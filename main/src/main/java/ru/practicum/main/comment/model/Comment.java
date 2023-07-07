@@ -6,6 +6,7 @@ import ru.practicum.main.event.model.Event;
 import ru.practicum.main.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class Comment {
     Integer id;
 
     @NotEmpty
+    @NotBlank
     @Column(name = "text")
     String text;
 
