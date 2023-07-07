@@ -1,4 +1,4 @@
-package client;
+package ru.practucum.client;
 
 import dto.StatsDtoToGetStats;
 import dto.StatsDtoToReturn;
@@ -15,13 +15,15 @@ import java.util.List;
 
 @Service
 @Log4j2
-class StatisticsWebClient {
-    WebClient webClient = WebClient.create();
+public class StatisticsWebClient {
 
-    public void saveHit(String uri, StatsDtoToSave statsDtoToSave) {
+    WebClient webClient = WebClient.create();
+    String uri = "http://stats-server:9090";
+
+    public void saveHit(String path, StatsDtoToSave statsDtoToSave) {
         webClient
                 .method(HttpMethod.POST)
-                .uri(uri)
+                .uri(uri + path)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(statsDtoToSave))
                 .retrieve()
@@ -32,10 +34,10 @@ class StatisticsWebClient {
                 });
     }
 
-    public List<StatsDtoToReturn> getStatistics(String baseUrl, StatsDtoToGetStats statsParameters) {
+    public List<StatsDtoToReturn> getStatistics(StatsDtoToGetStats statsParameters) {
         String endpointPath = "/stats";
 
-        String url = UriComponentsBuilder.fromHttpUrl(baseUrl + endpointPath)
+        String url = UriComponentsBuilder.fromHttpUrl(uri + endpointPath)
                 .queryParam("start", statsParameters.getStart())
                 .queryParam("end", statsParameters.getEnd())
                 .queryParam("uris", statsParameters.getUris())
