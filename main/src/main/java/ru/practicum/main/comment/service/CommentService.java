@@ -10,11 +10,11 @@ public interface CommentService {
 
     CommentDto save(NewCommentDto newCommentDto);
 
-//    CommentDto patchByUser(Integer userId, Integer commentId, NewCommentDto newCommentDto);
-//
-//    CommentDto delete(Integer userId, Integer commentId);
-//
-//    CommentDto getById(Integer userId, Integer commentId);
+    CommentDto patchByUser(Integer userId, Integer commentId, NewCommentDto newCommentDto);
+
+    CommentDto delete(Integer userId, Integer commentId);
+
+    CommentDto getById(Integer commentId);
 //
 //    List<CommentDto> getAllByEventId(Integer eventId, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd,
 //                                     String sort, Integer from, Integer size);

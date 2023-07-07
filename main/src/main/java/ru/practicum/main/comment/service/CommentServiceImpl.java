@@ -15,6 +15,7 @@ import ru.practicum.main.comment.model.CommentState;
 import ru.practicum.main.event.dao.EventRepository;
 import ru.practicum.main.event.dto.State;
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.exception.ConflictException;
 import ru.practicum.main.user.dao.UserRepository;
 import ru.practicum.main.user.model.User;
@@ -59,45 +60,37 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-//    @Override
-//    public CommentDto patchByUser(Integer userId, Integer commentId, NewCommentDto commentRequestDto) {
-//        Optional<User> user = userRepository.findById(userId);
-//        if (user.isEmpty()) {
-//            throw new InvalidParameterException("Нет пользователя с id: " + commentRequestDto.getEventId());
-//        }
-//        Optional<Comment> comment = commentRepository.findById(commentId);
-//        if (comment.isEmpty()) {
-//            throw new InvalidParameterException("Нет комментария с id: " + commentId);
-//        }
-//        comment.get().setText(commentRequestDto.getText());
-//        return CommentMapper.toCommentDto(commentRepository.save(comment.get()));
-//    }
-//
-//    @Override
-//    public CommentDto delete(Integer userId, Integer commentId) {
-//        Optional<User> user = userRepository.findById(userId);
-//        if (user.isEmpty()) {
-//            throw new InvalidParameterException("Нет пользователя с id: " + userId);
-//        }
-//        Optional<Comment> comment = commentRepository.findById(commentId);
-//        if (comment.isEmpty()) {
-//            throw new InvalidParameterException("Нет комментария с id: " + commentId);
-//        }
-//        if (!comment.get().getCommentState().equals(CommentState.WAITING)) {
-//            throw new ConflictException("Удалить комменарий можно только в состоянии WAITING");
-//        }
-//        commentRepository.deleteById(commentId);
-//        return CommentMapper.toCommentDto(comment.get());
-//    }
-//
-//    @Override
-//    public CommentDto getById(Integer userId, Integer commentId) {
-//        Optional<User> user = userRepository.findById(userId);
-//        if (user.isEmpty()) {
-//            throw new InvalidParameterException("Нет пользователя с id: " + userId);
-//        }
-//        return CommentMapper.toCommentDto(commentRepository.getById(commentId));
-//    }
+    @Override
+    public CommentDto patchByUser(Integer userId, Integer commentId, NewCommentDto commentRequestDto) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ConflictException("User not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ConflictException("Comment not found"));
+        comment.setText(commentRequestDto.getText());
+        return CommentMapper.toCommentDto(commentRepository.save(comment));
+    }
+
+    @Override
+    public CommentDto delete(Integer userId, Integer commentId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ConflictException("User not found"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ConflictException("Comment not found"));
+        if(!comment.getUser().getId().equals(userId)) {
+            throw new ConflictException("User is not author of comment");
+        }
+        if (!comment.getCommentState().equals(CommentState.WAITING)) {
+            throw new ConflictException("Comment state is not Waiting");
+        }
+        commentRepository.deleteById(commentId);
+        return CommentMapper.toCommentDto(comment);
+    }
+
+    @Override
+    public CommentDto getById(Integer commentId) {
+        return CommentMapper.toCommentDto(commentRepository.findById(commentId)
+                .orElseThrow(() -> new BadRequestException("Comment not found")));
+    }
 //
 //    @Override
 //    public List<CommentDto> getAllByEventId(Integer eventId, String text, LocalDateTime start,

@@ -57,11 +57,11 @@ public class ErrorHandler {
                 LocalDateTime.now().format(formatter));
     }
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ApiError handleAvailableInternalServerErrorException(final Throwable e) {
-        log.debug("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
-        return new ApiError(e.getStackTrace(), e.getMessage(), "Server Error", HttpStatus.INTERNAL_SERVER_ERROR,
-                LocalDateTime.now().format(formatter));
-    }
+//    @ExceptionHandler
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    public ApiError handleAvailableInternalServerErrorException(final Throwable e) {
+//        log.debug("Получен статус 500 Internal Server Error {}", e.getMessage(), e);
+//        return new ApiError(e.getStackTrace(), e.getMessage(), "Server Error", HttpStatus.INTERNAL_SERVER_ERROR,
+//                LocalDateTime.now().format(formatter));
+//    }
 }
