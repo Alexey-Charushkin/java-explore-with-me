@@ -1,7 +1,7 @@
 package ru.practicum.main.comment.model;
 
-public enum CommentStatus {
+public enum CommentState {
     PUBLISHED,
     WAITING,
-    BANNED// REJECTED
+    REJECTED
 }

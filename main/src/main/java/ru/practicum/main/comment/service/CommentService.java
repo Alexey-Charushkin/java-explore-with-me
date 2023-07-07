@@ -1,24 +1,29 @@
 package ru.practicum.main.comment.service;
 
+import ru.practicum.main.comment.dto.NewCommentDto;
+import ru.practicum.main.comment.dto.CommentDto;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CommentService {
 
-    CommentResponseDto addComment(Long userId, CommentRequestDto commentRequestDto) throws InvalidParameterException, ConflictException;
+    CommentDto save(NewCommentDto newCommentDto);
 
-    CommentResponseDto updateComment(Long userId, Long commentId, CommentRequestDto commentRequestDto) throws InvalidParameterException;
-
-    CommentResponseDto deleteComment(Long userId, Long commentId) throws InvalidParameterException, ConflictException;
-
-    CommentResponseDto getComment(Long userId, Long commentId) throws InvalidParameterException;
-
-    List<CommentResponseDto> getComments(Long eventId, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd, String sort, Integer from, Integer size) throws InvalidParameterException;
-
-    CommentResponseDto banComment(Long userId, Long commentId) throws EntityNotFoundException, ConflictException;
-
-    CommentResponseDto publishComment(Long userId, Long commentId) throws EntityNotFoundException, ConflictException;
-
-    List<CommentResponseDto> getCommentsByAdmin(Long userId, Long eventId, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd, String sort, Integer from, Integer size) throws InvalidParameterException;
-
+//    CommentDto patchByUser(Integer userId, Integer commentId, NewCommentDto newCommentDto);
+//
+//    CommentDto delete(Integer userId, Integer commentId);
+//
+//    CommentDto getById(Integer userId, Integer commentId);
+//
+//    List<CommentDto> getAllByEventId(Integer eventId, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd,
+//                                     String sort, Integer from, Integer size);
+//
+//    CommentDto patchByAdmin(Integer userId, Integer commentId);
+//
+//    CommentDto publishComment(Integer userId, Integer commentId);
+//
+//    List<CommentDto> getCommentsByAdmin(Integer userId, Integer eventId, String text, LocalDateTime start,
+//                                        LocalDateTime end, String sort, Integer from, Integer size);
+//
 }

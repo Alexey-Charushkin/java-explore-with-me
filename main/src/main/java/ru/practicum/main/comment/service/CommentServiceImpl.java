@@ -1,14 +1,38 @@
 package ru.practicum.main.comment.service;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import ru.practicum.main.comment.dao.CommentRepository;
+import ru.practicum.main.comment.dto.NewCommentDto;
+import ru.practicum.main.comment.dto.CommentDto;
+import ru.practicum.main.comment.mapper.CommentMapper;
+import ru.practicum.main.comment.model.Comment;
+import ru.practicum.main.comment.model.CommentState;
+import ru.practicum.main.event.dao.EventRepository;
+import ru.practicum.main.event.dto.State;
+import ru.practicum.main.event.model.Event;
+import ru.practicum.main.exception.ConflictException;
+import ru.practicum.main.user.dao.UserRepository;
+import ru.practicum.main.user.model.User;
 
+import javax.persistence.EntityNotFoundException;
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class CommentServiceImpl {
+@Log4j2
+@Getter
+@Setter
+@Service
+@RequiredArgsConstructor
+public class CommentServiceImpl implements CommentService {
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -17,138 +41,131 @@ public class CommentServiceImpl {
     private final CommentRepository commentRepository;
 
     @Override
-    public CommentResponseDto addComment(Long userId, CommentRequestDto commentRequestDto) throws InvalidParameterException, ConflictException {
-        log.info("Call#CommentServiceImpl#addComment# userId: {}, commentRequestDto: {}", userId, commentRequestDto);
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new InvalidParameterException("Нет пользователя с id: " + userId);
-        }
-        Optional<Event> event = eventRepository.findById(commentRequestDto.getEventId());
-        if (event.isEmpty()) {
-            throw new InvalidParameterException("Нет события с id: " + commentRequestDto.getEventId());
-        }
-        if (!event.get().getState().equals(EventState.PUBLISHED)) {
+    public CommentDto save(NewCommentDto commentRequestDto) {
+        User user = userRepository.findById(commentRequestDto.getAuthorId())
+                .orElseThrow(() -> new ConflictException("User not found"));
+        Event event = eventRepository.findById(commentRequestDto.getEventId())
+                .orElseThrow(() -> new ConflictException("Event not found"));
+        if (!event.getState().equals(State.PUBLISHED)) {
             throw new ConflictException("Можно добавить комментарий только к опубликованному событию");
         }
         Comment comment = new Comment();
         comment.setText(commentRequestDto.getText());
-        comment.setUser(user.get());
-        comment.setEvent(event.get());
+        comment.setUser(user);
+        comment.setEvent(event);
         comment.setCreated(LocalDateTime.now());
         comment.setCommentState(CommentState.WAITING);
 
-        return CommentMapper.toCommentResponseDto(commentRepository.save(comment));
+        return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
 
-    @Override
-    public CommentResponseDto updateComment(Long userId, Long commentId, CommentRequestDto commentRequestDto) throws InvalidParameterException {
-        log.info("Call#CommentServiceImpl#updateComment# userId: {}, commentRequestDto: {}", userId, commentRequestDto);
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new InvalidParameterException("Нет пользователя с id: " + commentRequestDto.getEventId());
-        }
-        Optional<Comment> comment = commentRepository.findById(commentId);
-        if (comment.isEmpty()) {
-            throw new InvalidParameterException("Нет комментария с id: " + commentId);
-        }
-        comment.get().setText(commentRequestDto.getText());
-        return CommentMapper.toCommentResponseDto(commentRepository.save(comment.get()));
-    }
-
-    @Override
-    public CommentResponseDto deleteComment(Long userId, Long commentId) throws InvalidParameterException, ConflictException {
-        log.info("Call#CommentServiceImpl#addComment# userId: {}, commentId: {}", userId, commentId);
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new InvalidParameterException("Нет пользователя с id: " + userId);
-        }
-        Optional<Comment> comment = commentRepository.findById(commentId);
-        if (comment.isEmpty()) {
-            throw new InvalidParameterException("Нет комментария с id: " + commentId);
-        }
-        if (!comment.get().getCommentState().equals(CommentState.WAITING)) {
-            throw new ConflictException("Удалить комменарий можно только в состоянии WAITING");
-        }
-        commentRepository.deleteById(commentId);
-        return CommentMapper.toCommentResponseDto(comment.get());
-    }
-
-    @Override
-    public CommentResponseDto getComment(Long userId, Long commentId) throws InvalidParameterException {
-        log.info("Call#CommentServiceImpl#deleteComment# userId: {}, commentId: {}", userId, commentId);
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new InvalidParameterException("Нет пользователя с id: " + userId);
-        }
-        return CommentMapper.toCommentResponseDto(commentRepository.getById(commentId));
-    }
-
-    @Override
-    public List<CommentResponseDto> getComments(Long eventId, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd, String sort, Integer from, Integer size) throws InvalidParameterException {
-        log.info("Call#CommentServiceImpl#getComments# userId: {}, text: {}", eventId, text);
-
-        if (sort != null && !"ASC".equalsIgnoreCase(sort) && !"DESC".equalsIgnoreCase(sort)) {
-            throw new InvalidParameterException("Параметр sort может принимать или ASC или DESC");
-        }
-        PageRequest pageable = PageRequest.of(from / size, size);
-
-        if (rangeStart != null && rangeEnd != null) {
-            if (rangeEnd.isBefore(rangeStart)) {
-                throw new InvalidParameterException("Время начала интервала не должно быть позже времени окончания интервала");
-            }
-        }
-
-        return commentRepository.getComments(eventId, text, rangeStart, rangeEnd, sort, CommentState.PUBLISHED, pageable).stream()
-                .map(c -> CommentMapper.toCommentResponseDto(c)).collect(Collectors.toList());
-    }
-
-    @Override
-    public CommentResponseDto banComment(Long userId, Long commentId) throws EntityNotFoundException, ConflictException {
-        log.info("Call#CommentServiceImpl#getComments# userId: {}, commentId: {}", userId, commentId);
-        Optional<Comment> comment = commentRepository.findById(commentId);
-        if (comment.isEmpty()) {
-            throw new EntityNotFoundException("Нет комментария с id: " + commentId);
-        }
-        if (comment.get().getCommentState().equals(CommentState.BANNED) || comment.get().getCommentState().equals(CommentState.PUBLISHED)) {
-            throw new ConflictException("Забанить комментарий можно только в состоянии WAITING");
-        }
-
-        comment.get().setCommentState(CommentState.BANNED);
-        return CommentMapper.toCommentResponseDto(commentRepository.save(comment.get()));
-    }
-
-    @Override
-    public CommentResponseDto publishComment(Long userId, Long commentId) throws EntityNotFoundException, ConflictException {
-        log.info("Call#CommentServiceImpl#publishComment# userId: {}, commentId: {}", userId, commentId);
-        Optional<Comment> comment = commentRepository.findById(commentId);
-        if (comment.isEmpty()) {
-            throw new EntityNotFoundException("Нет комментария с id: " + commentId);
-        }
-        if (comment.get().getCommentState().equals(CommentState.BANNED) || comment.get().getCommentState().equals(CommentState.PUBLISHED)) {
-            throw new ConflictException("Опубликовать комментарий можно только в состоянии WAITING");
-        }
-
-        comment.get().setCommentState(CommentState.PUBLISHED);
-        return CommentMapper.toCommentResponseDto(commentRepository.save(comment.get()));
-    }
-
-    @Override
-    public List<CommentResponseDto> getCommentsByAdmin(Long userId, Long eventId, String text,
-                                                       LocalDateTime rangeStart, LocalDateTime rangeEnd, String sort, Integer from, Integer size) throws InvalidParameterException {
-        log.info("Call#CommentServiceImpl#getCommentsByAdmin# userId: {}, eventId: {}, text: {}, rangeStart: {}, " +
-                "rangeEnd: {}, sort: {}, from: {}, size: {}", userId, eventId, text, rangeStart, rangeEnd, sort, from, size);
-        if (sort != null && !"ASC".equalsIgnoreCase(sort) && !"DESC".equalsIgnoreCase(sort)) {
-            throw new InvalidParameterException("Параметр sort может принимать или ASC или DESC");
-        }
-        PageRequest pageable = PageRequest.of(from / size, size);
-
-        if (rangeStart != null && rangeEnd != null) {
-            if (rangeEnd.isBefore(rangeStart)) {
-                throw new InvalidParameterException("Время начала интервала не должно быть позже времени окончания интервала");
-            }
-        }
-
-        return commentRepository.getCommentsByAdmin(userId, eventId, text, rangeStart, rangeEnd, sort, CommentState.PUBLISHED, pageable).stream()
-                .map(c -> CommentMapper.toCommentResponseDto(c)).collect(Collectors.toList());
-    }
+//    @Override
+//    public CommentDto patchByUser(Integer userId, Integer commentId, NewCommentDto commentRequestDto) {
+//        Optional<User> user = userRepository.findById(userId);
+//        if (user.isEmpty()) {
+//            throw new InvalidParameterException("Нет пользователя с id: " + commentRequestDto.getEventId());
+//        }
+//        Optional<Comment> comment = commentRepository.findById(commentId);
+//        if (comment.isEmpty()) {
+//            throw new InvalidParameterException("Нет комментария с id: " + commentId);
+//        }
+//        comment.get().setText(commentRequestDto.getText());
+//        return CommentMapper.toCommentDto(commentRepository.save(comment.get()));
+//    }
+//
+//    @Override
+//    public CommentDto delete(Integer userId, Integer commentId) {
+//        Optional<User> user = userRepository.findById(userId);
+//        if (user.isEmpty()) {
+//            throw new InvalidParameterException("Нет пользователя с id: " + userId);
+//        }
+//        Optional<Comment> comment = commentRepository.findById(commentId);
+//        if (comment.isEmpty()) {
+//            throw new InvalidParameterException("Нет комментария с id: " + commentId);
+//        }
+//        if (!comment.get().getCommentState().equals(CommentState.WAITING)) {
+//            throw new ConflictException("Удалить комменарий можно только в состоянии WAITING");
+//        }
+//        commentRepository.deleteById(commentId);
+//        return CommentMapper.toCommentDto(comment.get());
+//    }
+//
+//    @Override
+//    public CommentDto getById(Integer userId, Integer commentId) {
+//        Optional<User> user = userRepository.findById(userId);
+//        if (user.isEmpty()) {
+//            throw new InvalidParameterException("Нет пользователя с id: " + userId);
+//        }
+//        return CommentMapper.toCommentDto(commentRepository.getById(commentId));
+//    }
+//
+//    @Override
+//    public List<CommentDto> getAllByEventId(Integer eventId, String text, LocalDateTime start,
+//                                            LocalDateTime end, String sort, Integer from, Integer size) {
+//
+//        if (sort != null && !"ASC".equalsIgnoreCase(sort) && !"DESC".equalsIgnoreCase(sort)) {
+//            throw new InvalidParameterException("Параметр sort может принимать или ASC или DESC");
+//        }
+//        PageRequest pageable = PageRequest.of(from / size, size);
+//
+//        if (start != null && end != null) {
+//            if (end.isBefore(start)) {
+//                throw new InvalidParameterException("Время начала интервала не должно быть позже времени окончания интервала");
+//            }
+//        }
+//
+//        return commentRepository.getComments(eventId, text, start, end, sort, CommentState.PUBLISHED,
+//                        pageable).stream()
+//                .map(c -> CommentMapper.toCommentDto(c)).collect(Collectors.toList());
+//    }
+//
+//    @Override
+//    public CommentDto patchByAdmin(Integer userId, Integer commentId) {
+//        Optional<Comment> comment = commentRepository.findById(commentId);
+//        if (comment.isEmpty()) {
+//            throw new EntityNotFoundException("Нет комментария с id: " + commentId);
+//        }
+//        if (comment.get().getCommentState().equals(CommentState.REJECTED)
+//                || comment.get().getCommentState().equals(CommentState.PUBLISHED)) {
+//            throw new ConflictException("Забанить комментарий можно только в состоянии WAITING");
+//        }
+//
+//        comment.get().setCommentState(CommentState.REJECTED);
+//        return CommentMapper.toCommentDto(commentRepository.save(comment.get()));
+//    }
+//
+//    @Override
+//    public CommentDto publishComment(Integer userId, Integer commentId) {
+//
+//        Optional<Comment> comment = commentRepository.findById(commentId);
+//        if (comment.isEmpty()) {
+//            throw new EntityNotFoundException("Нет комментария с id: " + commentId);
+//        }
+//        if (comment.get().getCommentState().equals(CommentState.REJECTED)
+//                || comment.get().getCommentState().equals(CommentState.PUBLISHED)) {
+//            throw new ConflictException("Опубликовать комментарий можно только в состоянии WAITING");
+//        }
+//
+//        comment.get().setCommentState(CommentState.PUBLISHED);
+//        return CommentMapper.toCommentDto(commentRepository.save(comment.get()));
+//    }
+//
+//    @Override
+//    public List<CommentDto> getCommentsByAdmin(Integer userId, Integer eventId, String text, LocalDateTime rangeStart,
+//                                               LocalDateTime rangeEnd, String sort, Integer from, Integer size) {
+//        if (sort != null && !"ASC".equalsIgnoreCase(sort) && !"DESC".equalsIgnoreCase(sort)) {
+//            throw new InvalidParameterException("Параметр sort может принимать или ASC или DESC");
+//        }
+//        PageRequest pageable = PageRequest.of(from, size);
+//
+//        if (rangeStart != null && rangeEnd != null) {
+//            if (rangeEnd.isBefore(rangeStart)) {
+//                throw new InvalidParameterException("Время начала интервала не должно быть позже времени окончания интервала");
+//            }
+//        }
+//
+//        return commentRepository.getCommentsByAdmin(userId, eventId, text, rangeStart, rangeEnd, sort,
+//                        CommentState.PUBLISHED, pageable).stream()
+//                .map(c -> CommentMapper.toCommentDto(c)).collect(Collectors.toList());
+//    }
 }

@@ -1,7 +1,9 @@
 package ru.practicum.main.comment.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
+import ru.practicum.main.event.model.Event;
+import ru.practicum.main.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
