@@ -13,19 +13,23 @@ import java.util.List;
 @Log4j2
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/events/{eventId}/comments")
+@RequestMapping(path = "/events")
 class CommentPublicController {
     private final CommentService commentService;
 
-//    @GetMapping()
-//    public List<CommentDto> getAllByEventId(@PathVariable @Positive Integer eventId,
-//                                            @RequestParam(required = false) String text,
-//                                            @RequestParam(required = false) String start,
-//                                            @RequestParam(required = false) String end,
-//                                            @RequestParam(required = false) String sort,
-//                                            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-//                                            @Positive @RequestParam(defaultValue = "10") Integer size) {
-//        log.info("Get /events/{eventId}/comments");
-//        return commentService.getAllByEventId(eventId, text, start, end, sort, from, size);
-//    }
+    @GetMapping("/comments/{commentId}")
+    public CommentDto getById(@PathVariable @Positive Integer commentId) {
+        log.info("Patch /users/{userId}/comments/{commentId}");
+        return commentService.getById(commentId);
+    }
+    @GetMapping("/{eventId}/comments")
+    public List<CommentDto> getByEventIdAndState(@PathVariable @Positive Integer eventId,
+                                                @RequestParam (name = "state", required = false) String state,
+                                                @RequestParam (name = "start" , required = false) String start,
+                                                @RequestParam (name = "end", required = false) String end,
+                                                @RequestParam (name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                                @RequestParam (name = "size", defaultValue = "10") @Positive Integer size) {
+        log.info("Get /events/{eventId}/comments");
+        return commentService.findAllByEventIdAndRequestParam(eventId, state, start, end, from, size);
+    }
 }

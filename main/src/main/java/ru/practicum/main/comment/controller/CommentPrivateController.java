@@ -11,7 +11,6 @@ import ru.practicum.main.comment.dto.CommentDto;
 import ru.practicum.main.comment.service.CommentService;
 import ru.practicum.main.exception.BadRequestException;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
@@ -52,12 +51,6 @@ class CommentPrivateController {
         return commentService.delete(userId, commentId);
     }
 
-    @GetMapping("/comments/{commentId}")
-    public CommentDto getById(@PathVariable @Positive Integer commentId) {
-        log.info("Patch /users/{userId}/comments/{commentId}");
-        return commentService.getById(commentId);
-    }
-
     @GetMapping("/{userId}/comments/{eventId}")
     public CommentDto getByUserIdAndCommentId(@PathVariable @Positive Integer userId,
                                   @PathVariable @Positive Integer eventId) {
@@ -75,5 +68,4 @@ class CommentPrivateController {
         log.info("Get /users/{userId}/comments");
         return commentService.findAllByUserIdAndRequestParam(userId, state, start, end, from, size);
     }
-
 }

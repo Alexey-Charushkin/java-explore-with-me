@@ -69,12 +69,28 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    public CommentDto patchByAdmin(Integer commentId, String state) {
+        if(state == null) {
+            throw new BadRequestException("State is null");
+        }
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new ConflictException("Comment not found"));
+        if(comment.getCommentState().equals(CommentState.WAITING)) {
+            comment.setCommentState(CommentState.valueOf(state));
+            commentRepository.save(comment);
+        } else {
+            throw new ConflictException("Comment state is not Waiting");
+        }
+        return CommentMapper.toCommentDto(comment);
+    }
+
+    @Override
     public CommentDto delete(Integer userId, Integer commentId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new ConflictException("User not found"));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ConflictException("Comment not found"));
-        if(!comment.getUser().getId().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new ConflictException("User is not author of comment");
         }
         if (!comment.getCommentState().equals(CommentState.WAITING)) {
@@ -96,11 +112,11 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new ConflictException("User not found"));
         eventRepository.findById(eventId)
                 .orElseThrow(() -> new ConflictException("Event not found"));
-        Optional <Comment> comment = Optional.of(commentRepository.findByUserIdAndEventId(userId, eventId));
-                if(!comment.isPresent()) {
-                   throw  new ConflictException("Comment not found");
-                }
-        if(!comment.get().getUser().getId().equals(userId)) {
+        Optional<Comment> comment = Optional.of(commentRepository.findByUserIdAndEventId(userId, eventId));
+        if (!comment.isPresent()) {
+            throw new ConflictException("Comment not found");
+        }
+        if (!comment.get().getUser().getId().equals(userId)) {
             throw new ConflictException("User is not author of comment");
         }
         if (!comment.get().getCommentState().equals(CommentState.WAITING)) {
@@ -113,11 +129,11 @@ public class CommentServiceImpl implements CommentService {
     public List<CommentDto> findAllByUserIdAndRequestParam(Integer userId, String state, String start, String end,
                                                            Integer from, Integer size) {
         List<Comment> comments;
-        Pageable pageable = PageRequest.of(from,size);
+        Pageable pageable = PageRequest.of(from, size);
         userRepository.findById(userId)
                 .orElseThrow(() -> new ConflictException("User not found"));
-        if(state == null) {
-            if(start == null & end == null) {
+        if (state == null) {
+            if (start == null & end == null) {
                 comments = commentRepository.findAllByUserIdAndCreatedIsAfter(
                         userId, LocalDateTime.now(), pageable);
             } else {
@@ -126,7 +142,7 @@ public class CommentServiceImpl implements CommentService {
                         LocalDateTime.parse(end, formatter), pageable);
             }
         } else {
-            if(start == null & end == null) {
+            if (start == null & end == null) {
                 comments = commentRepository.findAllByUserIdAndCommentStateAndCreatedIsAfter(
                         userId, CommentState.valueOf(state), LocalDateTime.now(), pageable);
             } else {
@@ -138,75 +154,92 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.toCommentDtoList(comments);
     }
 
+    @Override
+    public List<CommentDto> findAllByEventIdAndRequestParam(Integer userId, String state, String start, String end, Integer from, Integer size) {
+        List<Comment> comments;
+        Pageable pageable = PageRequest.of(from, size);
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ConflictException("User not found"));
+        if (state == null) {
+            if (start == null & end == null) {
+                comments = commentRepository.findAllByEventIdAndCreatedIsAfter(
+                        userId, LocalDateTime.now(), pageable);
+            } else {
+                comments = commentRepository.findAllByEventIdAndCreatedIsAfterAndCreatedIsBefore(
+                        userId, LocalDateTime.parse(start, formatter),
+                        LocalDateTime.parse(end, formatter), pageable);
+            }
+        } else {
+            if (start == null & end == null) {
+                comments = commentRepository.findAllByEventIdAndCommentStateAndCreatedIsAfter(
+                        userId, CommentState.valueOf(state), LocalDateTime.now(), pageable);
+            } else {
+                comments = commentRepository.findAllByEventIdAndCommentStateAndCreatedIsAfterAndCreatedIsBefore(
+                        userId, CommentState.valueOf(state), LocalDateTime.parse(start, formatter),
+                        LocalDateTime.parse(end, formatter), pageable);
+            }
+        }
+        return CommentMapper.toCommentDtoList(comments);
+    }
 
-//
-//    @Override
-//    public List<CommentDto> getAllByEventId(Integer eventId, String text, LocalDateTime start,
-//                                            LocalDateTime end, String sort, Integer from, Integer size) {
-//
-//        if (sort != null && !"ASC".equalsIgnoreCase(sort) && !"DESC".equalsIgnoreCase(sort)) {
-//            throw new InvalidParameterException("Параметр sort может принимать или ASC или DESC");
-//        }
-//        PageRequest pageable = PageRequest.of(from / size, size);
-//
-//        if (start != null && end != null) {
-//            if (end.isBefore(start)) {
-//                throw new InvalidParameterException("Время начала интервала не должно быть позже времени окончания интервала");
-//            }
-//        }
-//
-//        return commentRepository.getComments(eventId, text, start, end, sort, CommentState.PUBLISHED,
-//                        pageable).stream()
-//                .map(c -> CommentMapper.toCommentDto(c)).collect(Collectors.toList());
-//    }
-//
-//    @Override
-//    public CommentDto patchByAdmin(Integer userId, Integer commentId) {
-//        Optional<Comment> comment = commentRepository.findById(commentId);
-//        if (comment.isEmpty()) {
-//            throw new EntityNotFoundException("Нет комментария с id: " + commentId);
-//        }
-//        if (comment.get().getCommentState().equals(CommentState.REJECTED)
-//                || comment.get().getCommentState().equals(CommentState.PUBLISHED)) {
-//            throw new ConflictException("Забанить комментарий можно только в состоянии WAITING");
-//        }
-//
-//        comment.get().setCommentState(CommentState.REJECTED);
-//        return CommentMapper.toCommentDto(commentRepository.save(comment.get()));
-//    }
-//
-//    @Override
-//    public CommentDto publishComment(Integer userId, Integer commentId) {
-//
-//        Optional<Comment> comment = commentRepository.findById(commentId);
-//        if (comment.isEmpty()) {
-//            throw new EntityNotFoundException("Нет комментария с id: " + commentId);
-//        }
-//        if (comment.get().getCommentState().equals(CommentState.REJECTED)
-//                || comment.get().getCommentState().equals(CommentState.PUBLISHED)) {
-//            throw new ConflictException("Опубликовать комментарий можно только в состоянии WAITING");
-//        }
-//
-//        comment.get().setCommentState(CommentState.PUBLISHED);
-//        return CommentMapper.toCommentDto(commentRepository.save(comment.get()));
-//    }
-//
-//    @Override
-//    public List<CommentDto> getCommentsByAdmin(Integer userId, Integer eventId, String text, LocalDateTime rangeStart,
-//                                               LocalDateTime rangeEnd, String sort, Integer from, Integer size) {
-//        if (sort != null && !"ASC".equalsIgnoreCase(sort) && !"DESC".equalsIgnoreCase(sort)) {
-//            throw new InvalidParameterException("Параметр sort может принимать или ASC или DESC");
-//        }
-//        PageRequest pageable = PageRequest.of(from, size);
-//
-//        if (rangeStart != null && rangeEnd != null) {
-//            if (rangeEnd.isBefore(rangeStart)) {
-//                throw new InvalidParameterException("Время начала интервала не должно быть позже времени окончания интервала");
-//            }
-//        }
-//
-//        return commentRepository.getCommentsByAdmin(userId, eventId, text, rangeStart, rangeEnd, sort,
-//                        CommentState.PUBLISHED, pageable).stream()
-//                .map(c -> CommentMapper.toCommentDto(c)).collect(Collectors.toList());
-//    }
+    @Override
+    public List<CommentDto> findAllByUserIdsAndRequestParam(Integer[] ids, String state, String start, String end,
+                                                            Integer from, Integer size) {
+        List<Comment> comments;
+        Pageable pageable = PageRequest.of(from, size);
+        if (ids != null) {
+            if (state == null) {
+                if (start == null & end == null) {
+                    comments = commentRepository.findAllByUserIdInAndCreatedIsAfter(
+                            ids, LocalDateTime.now().minusDays(7), pageable);
+                } else {
+                    comments = commentRepository.findAllByUserIdInAndCreatedIsAfterAndCreatedIsBefore(
+                            ids, LocalDateTime.parse(start, formatter),
+                            LocalDateTime.parse(end, formatter), pageable);
+                }
+            } else {
+                if (start == null & end == null) {
+                    comments = commentRepository.findAllByUserIdInAndCommentStateAndCreatedIsAfter(
+                            ids, CommentState.valueOf(state), LocalDateTime.now().minusDays(7), pageable);
+                } else {
+                    comments = commentRepository.findAllByUserIdInAndCommentStateAndCreatedIsAfterAndCreatedIsBefore(
+                            ids, CommentState.valueOf(state), LocalDateTime.parse(start, formatter),
+                            LocalDateTime.parse(end, formatter), pageable);
+                }
+            }
+        } else {
+            comments = commentRepository.findAll();
+        }
+        return CommentMapper.toCommentDtoList(comments);
+    }
+
+    @Override
+    public List<CommentDto> findAllByEventIdsAndRequestParam(Integer[] ids, String state, String start, String end, Integer from, Integer size) {
+        List<Comment> comments;
+        Pageable pageable = PageRequest.of(from, size);
+        if (ids != null) {
+            if (state == null) {
+                if (start == null & end == null) {
+                    comments = commentRepository.findAllByEventIdInAndCreatedIsAfter(
+                            ids, LocalDateTime.now().minusDays(7), pageable);
+                } else {
+                    comments = commentRepository.findAllByEventIdInAndCreatedIsAfterAndCreatedIsAfter(
+                            ids, LocalDateTime.parse(start, formatter),
+                            LocalDateTime.parse(end, formatter), pageable);
+                }
+            } else {
+                if (start == null & end == null) {
+                    comments = commentRepository.findAllByEventIdInAndCommentStateAndCreatedIsAfter(
+                            ids, CommentState.valueOf(state), LocalDateTime.now().minusDays(7), pageable);
+                } else {
+                    comments = commentRepository.findAllByEventIdInAndCommentStateAndCreatedIsAfterAndCreatedIsBefore(
+                            ids, CommentState.valueOf(state), LocalDateTime.parse(start, formatter),
+                            LocalDateTime.parse(end, formatter), pageable);
+                }
+            }
+        } else {
+            comments = commentRepository.findAll();
+        }
+        return CommentMapper.toCommentDtoList(comments);
+    }
 }
