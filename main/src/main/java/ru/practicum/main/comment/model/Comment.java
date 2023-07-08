@@ -25,14 +25,12 @@ public class Comment {
     @Column(name = "text")
     String text;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
     User user;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "event_id")
-    @JsonIgnore
     Event event;
 
     @Column(name = "created")

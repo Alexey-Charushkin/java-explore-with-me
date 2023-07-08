@@ -5,7 +5,8 @@ import ru.practicum.main.comment.dto.CommentDto;
 import ru.practicum.main.comment.model.Comment;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Formatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public
@@ -15,11 +16,17 @@ class CommentMapper {
         public CommentDto toCommentDto(Comment comment) {
             return new CommentDto(
                     comment.getId(),
-                    comment.getEvent(),
-                    comment.getUser(),
+                    comment.getEvent().getAnnotation(),
+                    comment.getUser().getName(),
                     comment.getText(),
                     comment.getCreated().format(formatter),
                     comment.getCommentState().toString()
             );
+        }
+
+        public List<CommentDto> toCommentDtoList(List<Comment> commentList) {
+            return commentList.stream()
+                    .map(CommentMapper::toCommentDto)
+                    .collect(Collectors.toList());
         }
 }

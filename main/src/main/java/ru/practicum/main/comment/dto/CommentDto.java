@@ -13,8 +13,8 @@ import ru.practicum.main.user.model.User;
 @AllArgsConstructor
 public class CommentDto {
     private Integer id;
-    private Event event;
-    private User author;
+    private String eventAnnotation;
+    private String authorName;
     String text;
     String created;
     String state;

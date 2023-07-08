@@ -8,10 +8,34 @@ import org.springframework.data.repository.query.Param;
 import ru.practicum.main.comment.model.Comment;
 import ru.practicum.main.comment.model.CommentState;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
+
+    Comment findByUserIdAndEventId(Integer userId, Integer eventId);
+
+    List<Comment> findAllByUserIdAndCommentStateAndCreatedIsAfterAndCreatedIsBefore(
+            Integer userId, CommentState state, LocalDateTime start, LocalDateTime end, Pageable pageable
+    );
+
+    List<Comment> findAllByUserIdAndCreatedIsAfterAndCreatedIsBefore(
+            Integer userId, LocalDateTime start, LocalDateTime end, Pageable pageable
+    );
+
+    List<Comment> findAllByUserIdAndCreatedIsAfter(
+            Integer userId, LocalDateTime localDateTime, Pageable pageable
+    );
+
+    List<Comment> findAllByUserIdAndCommentStateAndCreatedIsAfter(
+            Integer userId, CommentState state, LocalDateTime localDateTime, Pageable pageable
+    );
+
+
+//    findAllByUserIdAndRequestParam(Integer userId, String state, String start, String end,
+//                                   Integer from, Integer size)
+
 //    @Query("SELECT c " +
 //            "FROM Comment AS c " +
 //            "WHERE " +

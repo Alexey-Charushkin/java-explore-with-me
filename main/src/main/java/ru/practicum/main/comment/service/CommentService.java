@@ -1,8 +1,10 @@
 package ru.practicum.main.comment.service;
 
+import org.springframework.data.repository.core.support.IncompleteRepositoryCompositionException;
 import ru.practicum.main.comment.dto.NewCommentDto;
 import ru.practicum.main.comment.dto.CommentDto;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,6 +17,11 @@ public interface CommentService {
     CommentDto delete(Integer userId, Integer commentId);
 
     CommentDto getById(Integer commentId);
+
+    CommentDto getByUserIdAndCommentId(Integer userId, Integer commentId);
+
+    List<CommentDto> findAllByUserIdAndRequestParam(Integer userId, String state, String start, String end,
+                                                    Integer from, Integer size);
 //
 //    List<CommentDto> getAllByEventId(Integer eventId, String text, LocalDateTime rangeStart, LocalDateTime rangeEnd,
 //                                     String sort, Integer from, Integer size);

@@ -1,8 +1,8 @@
 package ru.practicum.main.comment.dto;
 
 import lombok.*;
-import ru.practicum.main.compilation.controller.Create;
-import ru.practicum.main.compilation.controller.Update;
+import ru.practicum.main.comment.controller.CreateComment;
+import ru.practicum.main.comment.controller.UpdateComment;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -12,10 +12,10 @@ import javax.validation.constraints.NotNull;
 @Setter
 @RequiredArgsConstructor
 public class NewCommentDto {
-    @NotNull(groups = {Create.class})
+    @NotNull(groups = {CreateComment.class})
     private Integer eventId;
     private Integer authorId;
-    @NotEmpty (groups = {Create.class, Update.class})
-    @NotBlank (groups = {Create.class, Update.class})
+    @NotEmpty (groups = {CreateComment.class, UpdateComment.class})
+    @NotBlank (groups = {CreateComment.class, UpdateComment.class})
     String text;
 }
