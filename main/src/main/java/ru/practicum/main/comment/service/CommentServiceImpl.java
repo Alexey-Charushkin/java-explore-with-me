@@ -70,12 +70,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto patchByAdmin(Integer commentId, String state) {
-        if(state == null) {
+        if (state == null) {
             throw new BadRequestException("State is null");
         }
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ConflictException("Comment not found"));
-        if(comment.getCommentState().equals(CommentState.WAITING)) {
+        if (comment.getCommentState().equals(CommentState.WAITING)) {
             comment.setCommentState(CommentState.valueOf(state));
             commentRepository.save(comment);
         } else {

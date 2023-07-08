@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import ru.practicum.main.event.model.Event;
-import ru.practicum.main.user.model.User;
 
 @Getter
 @Setter

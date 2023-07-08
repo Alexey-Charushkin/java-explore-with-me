@@ -1,13 +1,10 @@
 package ru.practicum.main.comment.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,8 +17,6 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @NotEmpty
-    @NotBlank
     @Column(name = "text")
     String text;
 

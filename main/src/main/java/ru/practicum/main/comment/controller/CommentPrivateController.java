@@ -53,18 +53,18 @@ class CommentPrivateController {
 
     @GetMapping("/{userId}/comments/{eventId}")
     public CommentDto getByUserIdAndCommentId(@PathVariable @Positive Integer userId,
-                                  @PathVariable @Positive Integer eventId) {
+                                              @PathVariable @Positive Integer eventId) {
         log.info("Get /users/{userId}/comments/{commentId}");
         return commentService.getByUserIdAndCommentId(userId, eventId);
     }
 
     @GetMapping("/{userId}/comments")
     public List<CommentDto> getByUserIdAndState(@PathVariable @Positive Integer userId,
-                                                @RequestParam (name = "state", required = false) String state,
-                                                @RequestParam (name = "start" , required = false) String start,
-                                                @RequestParam (name = "end", required = false) String end,
-                                                @RequestParam (name = "from", defaultValue = "0") @PositiveOrZero Integer from,
-                                                @RequestParam (name = "size", defaultValue = "10") @Positive Integer size) {
+                                                @RequestParam(name = "state", required = false) String state,
+                                                @RequestParam(name = "start", required = false) String start,
+                                                @RequestParam(name = "end", required = false) String end,
+                                                @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                                @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         log.info("Get /users/{userId}/comments");
         return commentService.findAllByUserIdAndRequestParam(userId, state, start, end, from, size);
     }
