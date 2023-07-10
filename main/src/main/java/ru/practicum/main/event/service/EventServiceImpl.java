@@ -342,13 +342,8 @@ public class EventServiceImpl implements EventService {
 
         Map<Integer, Integer> eventViewsMap = getEventHitsMap(statsList, events);
 
-        for (int i = 0; i < events.size(); i++) {
-            Event event = events.get(i);
-            if (eventViewsMap.containsKey(event.getId())) {
-                event.setViews(eventViewsMap.get(event.getId()));
-                events.remove(i);
-                events.add(event);
-            }
+        for (Event event : events) {
+            if (eventViewsMap.containsKey(event.getId())) event.setViews(eventViewsMap.get(event.getId()));
         }
         return events;
     }
@@ -356,9 +351,7 @@ public class EventServiceImpl implements EventService {
     private Map<Integer, Integer> getEventHitsMap(List<StatsDtoToReturn> hitDtoList, List<Event> events) {
         Map<Integer, Integer> hits = new HashMap<>();
         if (hitDtoList.size() == 0) {
-            for (Event event : events) {
-                hits.put(event.getId(), 0);
-            }
+            for (Event event : events) hits.put(event.getId(), 0);
             return hits;
         }
         for (StatsDtoToReturn viewStatsDto : hitDtoList) {

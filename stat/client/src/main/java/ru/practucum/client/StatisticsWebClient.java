@@ -19,6 +19,7 @@ public class StatisticsWebClient {
 
     WebClient webClient = WebClient.create();
     String uri = "http://stats-server:9090";
+    // String uri = "http://localhost:9090";
 
     public void saveHit(String path, StatsDtoToSave statsDtoToSave) {
         webClient
