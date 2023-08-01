@@ -3,7 +3,7 @@ package ru.practicum.main.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import ru.practucum.client.StatisticsWebClient;
+import ru.practicum.client.StatisticsWebClient;
 
 
 @Configuration

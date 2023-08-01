@@ -1,4 +1,4 @@
-package ru.practucum.client;
+package ru.practicum.client;
 
 import dto.StatsDtoToGetStats;
 import dto.StatsDtoToReturn;
@@ -18,8 +18,9 @@ import java.util.List;
 public class StatisticsWebClient {
 
     WebClient webClient = WebClient.create();
-    String uri = "http://stats-server:9090";
-    // String uri = "http://localhost:9090";
+
+    String uri = "http://stats-server:9090"; // используеться для приложения развёрнутого в docker контейнере
+    // String uri = "http://localhost:9090"; // используется для приложения развёрнутого без docker
 
     public void saveHit(String path, StatsDtoToSave statsDtoToSave) {
         webClient

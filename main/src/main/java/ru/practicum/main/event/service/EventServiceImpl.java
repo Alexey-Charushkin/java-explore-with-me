@@ -24,7 +24,7 @@ import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.locations.dao.LocationsRepository;
 import ru.practicum.main.request.dao.RequestRepository;
 import ru.practicum.main.user.service.UserService;
-import ru.practucum.client.StatisticsWebClient;
+import ru.practicum.client.StatisticsWebClient;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
