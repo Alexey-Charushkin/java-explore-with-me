@@ -107,7 +107,7 @@ _____
 ### Установка и запуск
 
 В зависимости от типа установки в клиенте статистики
-располоденного по пути: "src/main/java/ru/practicum/client/StatisticsWebClient.java"
+расположенного по пути: "src/main/java/ru/practicum/client/StatisticsWebClient.java"
 используется разный URI сервера статистики
 
 + для обычной установки: "http://localhost:9090"
